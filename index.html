@@ -144,33 +144,70 @@
             aspect-ratio: 16/9;
         }
 
-        .slide-content {
+        .text-box {
+            position: relative;
+            margin: 10px;
+            padding: 10px;
+            border: 1px dashed transparent;
+            border-radius: 4px;
+            min-height: 50px;
+            cursor: text;
+        }
+
+        .text-box:hover {
+            border-color: var(--border);
+        }
+
+        .text-box:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .text-box-controls {
             position: absolute;
-            top: 0;
+            top: -40px;
             right: 0;
-            width: 100%;
-            height: 100%;
-            padding: 2rem;
-            outline: none;
-            overflow-y: auto;
-            font-family: Vazirmatn;
+            display: none;
+            background: white;
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .text-box-wrapper:hover .text-box-controls {
+            display: flex;
+        }
+
+        .text-box-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .add-text-box {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             font-size: 24px;
-            line-height: 1.5;
-            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
         }
 
-        .slide-content:empty:before {
-            content: 'برای نوشتن کلیک کنید...';
-            color: #9ca3af;
-            font-style: italic;
-        }
-
-        .slide-content:focus {
-            outline: none;
-        }
-
-        ::selection {
-            background: rgba(37, 99, 235, 0.2);
+        .add-text-box:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
         }
 
         .style-select {
@@ -179,69 +216,20 @@
             border: 1px solid var(--border);
             border-radius: 4px;
             background: white;
-            min-width: 100px;
+            min-width: 80px;
             font-family: inherit;
         }
 
-        .color-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .color-group input[type="color"] {
-            width: 32px;
-            height: 32px;
-            padding: 2px;
-            border: 1px solid var(--border);
+        .move-handle {
+            cursor: move;
+            padding: 2px 8px;
+            background: #eee;
             border-radius: 4px;
-            cursor: pointer;
+            user-select: none;
         }
 
-        .color-label {
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            color: #4b5563;
-            cursor: pointer;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            background: var(--bg);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            border-color: var(--danger);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-            border-color: var(--success);
+        .move-handle:hover {
+            background: #ddd;
         }
 
         .toolbar-btn {
@@ -293,7 +281,8 @@
         }
     </style>
 </head>
-<body>
+
+    <body>
     <div class="main-toolbar">
         <div class="toolbar-group">
             <button class="btn btn-primary" onclick="addNewSlide()">
@@ -305,45 +294,18 @@
                 حذف اسلاید
             </button>
         </div>
-        
-        <div class="toolbar-group">
-            <input type="text" class="style-select font-size" placeholder="اندازه فونت" oninput="applyStyleToSelection('fontSize', this.value + 'px')" title="اندازه فونت">
-            <select class="style-select font-family" onchange="applyStyleToSelection('fontFamily', this.value)">
-                <option value="Vazirmatn">وزیر</option>
-                <option value="Lalezar">لاله‌زار</option>
-                <option value="Yekan">یکان</option>
-            </select>
-            <div class="color-group">
-                <input type="color" id="textColor" onchange="applyStyleToSelection('color', this.value)" title="رنگ متن">
-                <label for="textColor" class="color-label">رنگ متن</label>
-            </div>
-        </div>
-
-        <div class="toolbar-group">
-            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'right')" title="راست‌چین">
-                <span class="icon">⇚</span>
-            </button>
-            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'center')" title="وسط‌چین">
-                <span class="icon">☰</span>
-            </button>
-            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'left')" title="چپ‌چین">
-                <span class="icon">⇛</span>
-            </button>
-            <button class="toolbar-btn" onclick="toggleStyle('bold')" title="ضخیم">B</button>
-            <button class="toolbar-btn" onclick="toggleStyle('italic')" title="مورب">I</button>
-        </div>
 
         <div class="toolbar-group">
             <div class="color-group">
-                <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه">
-                <label for="bgColor" class="color-label">پس‌زمینه</label>
+                <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه اسلاید">
+                <label for="bgColor" class="color-label">پس‌زمینه اسلاید</label>
             </div>
         </div>
 
         <div class="toolbar-group">
             <button class="btn btn-success" onclick="generatePPT()">
                 <span class="icon">⬇️</span>
-                دانلود
+                دانلود پاورپوینت
             </button>
         </div>
     </div>
@@ -355,120 +317,303 @@
         
         <div class="slide-workspace">
             <div class="slide-canvas" id="currentSlide">
-                <!-- محتوای اسلاید فعلی -->
+                <div class="slide-content" id="slideContent">
+                    <!-- باکس‌های متن اینجا اضافه می‌شوند -->
+                </div>
+                <button class="add-text-box" onclick="addNewTextBox()" title="افزودن باکس متن جدید">+</button>
             </div>
         </div>
     </div>
 
-    <script>
+            <script>
         let slides = [];
         let currentSlideIndex = 0;
 
-        function createSlideContent() {
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'slide-content';
-            contentDiv.contentEditable = true;
-            contentDiv.dir = 'rtl';
-            contentDiv.spellcheck = false;
+        function addNewTextBox() {
+            const slideContent = document.getElementById('slideContent');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'text-box-wrapper';
+            
+            const textBox = document.createElement('div');
+            textBox.className = 'text-box';
+            textBox.contentEditable = true;
+            textBox.dir = 'rtl';
+            textBox.dataset.fontSize = '24';
+            textBox.dataset.fontFamily = 'Vazirmatn';
+            textBox.style.fontSize = '24px';
+            textBox.style.fontFamily = 'Vazirmatn';
+            
+            const controls = document.createElement('div');
+            controls.className = 'text-box-controls';
+            
+            controls.innerHTML = `
+                <span class="move-handle" title="جابجایی">⋮</span>
+                <select class="style-select" onchange="changeFont(this)" title="نوع فونت">
+                    <option value="Vazirmatn">وزیر</option>
+                    <option value="Lalezar">لاله‌زار</option>
+                    <option value="Yekan">یکان</option>
+                </select>
+                <input type="number" class="style-select" placeholder="سایز" 
+                       onchange="changeFontSize(this)" min="8" max="72" value="24" title="سایز فونت">
+                <input type="color" title="رنگ متن" onchange="changeTextColor(this)" value="#000000">
+                <button class="toolbar-btn" onclick="toggleTextBold(this)" title="ضخیم">B</button>
+                <button class="toolbar-btn" onclick="toggleTextItalic(this)" title="مورب">I</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'center')" title="وسط‌چین">☰</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'left')" title="چپ‌چین">⇛</button>
+                <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
+            `;
+            
+            wrapper.appendChild(controls);
+            wrapper.appendChild(textBox);
+            slideContent.appendChild(wrapper);
+            
+            // ذخیره وضعیت جدید
+            saveState();
+            
+            // فعال کردن drag & drop
+            enableDragAndDrop(wrapper);
+            
+            // فوکوس روی باکس جدید
+            textBox.focus();
+        }
 
-            contentDiv.addEventListener('mouseup', handleTextSelection);
-            contentDiv.addEventListener('keyup', handleTextSelection);
-            contentDiv.addEventListener('input', () => {
+        function changeFont(select) {
+            const textBox = select.closest('.text-box-wrapper').querySelector('.text-box');
+            textBox.style.fontFamily = select.value;
+            textBox.dataset.fontFamily = select.value;
+            saveState();
+        }
+
+        function changeFontSize(input) {
+            const textBox = input.closest('.text-box-wrapper').querySelector('.text-box');
+            const size = Math.min(Math.max(parseInt(input.value) || 24, 8), 72);
+            textBox.style.fontSize = size + 'px';
+            textBox.dataset.fontSize = size;
+            input.value = size;
+            saveState();
+        }
+
+        function changeTextColor(input) {
+            const textBox = input.closest('.text-box-wrapper').querySelector('.text-box');
+            textBox.style.color = input.value;
+            textBox.dataset.color = input.value;
+            saveState();
+        }
+
+        function toggleTextBold(button) {
+            const textBox = button.closest('.text-box-wrapper').querySelector('.text-box');
+            const isBold = textBox.style.fontWeight === 'bold';
+            textBox.style.fontWeight = isBold ? 'normal' : 'bold';
+            button.classList.toggle('active');
+            textBox.dataset.bold = !isBold;
+            saveState();
+        }
+
+        function toggleTextItalic(button) {
+            const textBox = button.closest('.text-box-wrapper').querySelector('.text-box');
+            const isItalic = textBox.style.fontStyle === 'italic';
+            textBox.style.fontStyle = isItalic ? 'normal' : 'italic';
+            button.classList.toggle('active');
+            textBox.dataset.italic = !isItalic;
+            saveState();
+        }
+
+        function alignText(button, alignment) {
+            const controls = button.closest('.text-box-controls');
+            const textBox = button.closest('.text-box-wrapper').querySelector('.text-box');
+            
+            // Remove active class from all alignment buttons
+            controls.querySelectorAll('button[onclick*="alignText"]')
+                .forEach(btn => btn.classList.remove('active'));
+            
+            textBox.style.textAlign = alignment;
+            button.classList.add('active');
+            textBox.dataset.align = alignment;
+            saveState();
+        }
+
+        function deleteTextBox(button) {
+            if (confirm('آیا از حذف این باکس متن مطمئن هستید؟')) {
+                button.closest('.text-box-wrapper').remove();
                 saveState();
-                updateSlidePreview(currentSlideIndex);
+            }
+        }
+
+        function enableDragAndDrop(wrapper) {
+            const handle = wrapper.querySelector('.move-handle');
+            let isDragging = false;
+            let currentY;
+            let initialY;
+            
+            handle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                currentY = wrapper.offsetTop;
+                initialY = e.clientY;
+                
+                wrapper.style.position = 'absolute';
+                wrapper.style.width = '90%';
+                wrapper.style.zIndex = '1000';
             });
             
-            return contentDiv;
-        }
-
-        function handleTextSelection() {
-            const selection = window.getSelection();
-            if (selection && selection.toString()) {
-                updateToolbarWithSelection(selection);
-            }
-        }
-
-        function updateToolbarWithSelection(selection) {
-            try {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-                const computedStyle = window.getComputedStyle(
-                    container.nodeType === 3 ? container.parentNode : container
-                );
-
-                // به‌روزرسانی وضعیت نوار ابزار
-                document.querySelector('.font-family').value = 
-                    computedStyle.fontFamily.split(',')[0].replace(/['\"]+/g, '') || 'Vazirmatn';
-                document.querySelector('.font-size').value = 
-                    parseInt(computedStyle.fontSize) || '24';
-                document.querySelector('#textColor').value = 
-                    rgbToHex(computedStyle.color);
-
-                // به‌روزرسانی دکمه‌های فرمت
-                document.querySelector('[onclick="toggleStyle(\'bold\')"]')
-                    .classList.toggle('active', computedStyle.fontWeight >= 700);
-                document.querySelector('[onclick="toggleStyle(\'italic\')"]')
-                    .classList.toggle('active', computedStyle.fontStyle === 'italic');
-            } catch (error) {
-                console.log('Selection update error:', error);
-            }
-        }
-
-        function applyStyleToSelection(property, value) {
-            const selection = window.getSelection();
-            if (!selection.toString()) return;
-
-            try {
-                const range = selection.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style[property] = value;
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
                 
-                if (range.commonAncestorContainer.nodeType === 3) {
-                    range.surroundContents(span);
-                } else {
-                    const text = range.extractContents();
-                    span.appendChild(text);
-                    range.insertNode(span);
-                }
+                const deltaY = e.clientY - initialY;
+                wrapper.style.top = currentY + deltaY + 'px';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const wrappers = Array.from(document.querySelectorAll('.text-box-wrapper'));
+                wrappers.sort((a, b) => a.offsetTop - b.offsetTop);
+                
+                const slideContent = document.getElementById('slideContent');
+                wrappers.forEach(w => {
+                    w.style.position = 'relative';
+                    w.style.top = '0';
+                    slideContent.appendChild(w);
+                });
                 
                 saveState();
-                updateSlidePreview(currentSlideIndex);
-            } catch (error) {
-                console.log('Style application error:', error);
-            }
+            });
         }
 
-        function toggleStyle(style) {
-            const selection = window.getSelection();
-            if (!selection.toString()) return;
+        function saveState() {
+            const currentSlide = slides[currentSlideIndex];
+            const textBoxes = document.querySelectorAll('.text-box-wrapper');
+            
+            currentSlide.textBoxes = Array.from(textBoxes).map(wrapper => {
+                const textBox = wrapper.querySelector('.text-box');
+                return {
+                    content: textBox.innerHTML,
+                    style: {
+                        fontFamily: textBox.dataset.fontFamily || 'Vazirmatn',
+                        fontSize: textBox.dataset.fontSize || '24',
+                        color: textBox.dataset.color || '#000000',
+                        bold: textBox.dataset.bold === 'true',
+                        italic: textBox.dataset.italic === 'true',
+                        align: textBox.dataset.align || 'right'
+                    }
+                };
+            });
+            
+            localStorage.setItem('slides', JSON.stringify(slides));
+            localStorage.setItem('currentSlideIndex', currentSlideIndex);
+        }
 
+        function renderCurrentSlide() {
+            const canvas = document.getElementById('currentSlide');
+            const content = document.getElementById('slideContent');
+            content.innerHTML = '';
+            
+            canvas.style.backgroundColor = slides[currentSlideIndex].background || '#ffffff';
+            document.getElementById('bgColor').value = slides[currentSlideIndex].background || '#ffffff';
+            
+            if (slides[currentSlideIndex].textBoxes) {
+                slides[currentSlideIndex].textBoxes.forEach(textBoxData => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'text-box-wrapper';
+                    
+                    const textBox = document.createElement('div');
+                    textBox.className = 'text-box';
+                    textBox.contentEditable = true;
+                    textBox.innerHTML = textBoxData.content;
+                    textBox.style.fontFamily = textBoxData.style.fontFamily;
+                    textBox.style.fontSize = textBoxData.style.fontSize + 'px';
+                    textBox.style.color = textBoxData.style.color;
+                    textBox.style.fontWeight = textBoxData.style.bold ? 'bold' : 'normal';
+                    textBox.style.fontStyle = textBoxData.style.italic ? 'italic' : 'normal';
+                    textBox.style.textAlign = textBoxData.style.align;
+                    
+                    // Save styles in dataset for later use
+                    textBox.dataset.fontFamily = textBoxData.style.fontFamily;
+                    textBox.dataset.fontSize = textBoxData.style.fontSize;
+                    textBox.dataset.color = textBoxData.style.color;
+                    textBox.dataset.bold = textBoxData.style.bold;
+                    textBox.dataset.italic = textBoxData.style.italic;
+                    textBox.dataset.align = textBoxData.style.align;
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'text-box-controls';
+                    controls.innerHTML = `
+                        <span class="move-handle" title="جابجایی">⋮</span>
+                        <select class="style-select" onchange="changeFont(this)" title="نوع فونت">
+                            <option value="Vazirmatn" ${textBoxData.style.fontFamily === 'Vazirmatn' ? 'selected' : ''}>وزیر</option>
+                            <option value="Lalezar" ${textBoxData.style.fontFamily === 'Lalezar' ? 'selected' : ''}>لاله‌زار</option>
+                            <option value="Yekan" ${textBoxData.style.fontFamily === 'Yekan' ? 'selected' : ''}>یکان</option>
+                        </select>
+                        <input type="number" class="style-select" placeholder="سایز" 
+                               onchange="changeFontSize(this)" min="8" max="72" 
+                               value="${textBoxData.style.fontSize}" title="سایز فونت">
+                        <input type="color" title="رنگ متن" onchange="changeTextColor(this)"
+                               value="${textBoxData.style.color}">
+                        <button class="toolbar-btn ${textBoxData.style.bold ? 'active' : ''}" 
+                                onclick="toggleTextBold(this)" title="ضخیم">B</button>
+                        <button class="toolbar-btn ${textBoxData.style.italic ? 'active' : ''}" 
+                                onclick="toggleTextItalic(this)" title="مورب">I</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'right' ? 'active' : ''}" 
+                                onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'center' ? 'active' : ''}" 
+                                onclick="alignText(this, 'center')" title="وسط‌چین">☰</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'left' ? 'active' : ''}" 
+                                onclick="alignText(this, 'left')" title="چپ‌چین">⇛</button>
+                        <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
+                    `;
+                    
+                    wrapper.appendChild(controls);
+                    wrapper.appendChild(textBox);
+                    content.appendChild(wrapper);
+                    
+                    enableDragAndDrop(wrapper);
+                });
+            }
+            
+            updateSlidePreview(currentSlideIndex);
+        }
+
+        async function generatePPT() {
             try {
-                const range = selection.getRangeAt(0);
-                const span = document.createElement('span');
+                const pptx = new PptxGenJS();
                 
-                if (style === 'bold') {
-                    const isBold = window.getComputedStyle(range.commonAncestorContainer.parentNode).fontWeight >= 700;
-                    span.style.fontWeight = isBold ? 'normal' : 'bold';
-                } else if (style === 'italic') {
-                    const isItalic = window.getComputedStyle(range.commonAncestorContainer.parentNode).fontStyle === 'italic';
-                    span.style.fontStyle = isItalic ? 'normal' : 'italic';
+                for (const slide of slides) {
+                    const pptSlide = pptx.addSlide();
+                    pptSlide.background = { color: slide.background || '#FFFFFF' };
+
+                    if (slide.textBoxes && slide.textBoxes.length > 0) {
+                        slide.textBoxes.forEach((textBox, index) => {
+                            // Calculate position based on index
+                            const yPos = (index * 15) + 5; // 5% initial margin, 15% spacing
+                            
+                            pptSlide.addText(textBox.content.replace(/<[^>]*>/g, ''), {
+                                x: '5%',
+                                y: yPos + '%',
+                                w: '90%',
+                                h: 'auto',
+                                fontSize: parseInt(textBox.style.fontSize),
+                                fontFace: textBox.style.fontFamily,
+                                color: textBox.style.color.replace('#', ''),
+                                bold: textBox.style.bold,
+                                italic: textBox.style.italic,
+                                align: textBox.style.align === 'center' ? 'center' : 
+                                       textBox.style.align === 'left' ? 'left' : 'right',
+                                rtlMode: true,
+                                breakLine: true
+                            });
+                        });
+                    }
                 }
 
-                if (range.commonAncestorContainer.nodeType === 3) {
-                    range.surroundContents(span);
-                } else {
-                    const text = range.extractContents();
-                    span.appendChild(text);
-                    range.insertNode(span);
-                }
+                await pptx.writeFile({ 
+                    fileName: `presentation-${new Date().toLocaleString('fa-IR').replace(/[/:]/g, '-')}.pptx` 
+                });
+                alert('پاورپوینت با موفقیت ساخته شد!');
 
-                const button = document.querySelector(`[onclick="toggleStyle('${style}')"]`);
-                button.classList.toggle('active');
-                
-                saveState();
-                updateSlidePreview(currentSlideIndex);
             } catch (error) {
-                console.log('Style toggle error:', error);
+                alert(`خطا در ساخت پاورپوینت: ${error.message}`);
+                console.error(error);
             }
         }
 
@@ -476,7 +621,7 @@
             const slide = {
                 id: Date.now(),
                 background: '#ffffff',
-                content: ''
+                textBoxes: []
             };
             slides.push(slide);
             currentSlideIndex = slides.length - 1;
@@ -509,35 +654,33 @@
             slides.forEach((slide, index) => {
                 const preview = document.createElement('div');
                 preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
-                preview.style.backgroundColor = slide.background;
+                preview.style.backgroundColor = slide.background || '#ffffff';
                 preview.onclick = () => switchSlide(index);
                 
-                // شماره اسلاید
                 const number = document.createElement('div');
                 number.className = 'slide-number';
                 number.textContent = (index + 1).toString();
                 preview.appendChild(number);
                 
-                // دکمه حذف
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '×';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (slides.length > 1) {
-                        slides.splice(index, 1);
-                        if (currentSlideIndex >= index) {
-                            currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+                if (slides.length > 1) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+                            slides.splice(index, 1);
+                            if (currentSlideIndex >= index) {
+                                currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+                            }
+                            updateSlidesList();
+                            renderCurrentSlide();
+                            saveState();
                         }
-                        updateSlidesList();
-                        renderCurrentSlide();
-                        saveState();
-                    } else {
-                        alert('نمی‌توانید تنها اسلاید را حذف کنید');
-                    }
-                };
+                    };
+                    preview.appendChild(deleteBtn);
+                }
                 
-                preview.appendChild(deleteBtn);
                 container.appendChild(preview);
             });
         }
@@ -546,17 +689,6 @@
             currentSlideIndex = index;
             updateSlidesList();
             renderCurrentSlide();
-        }
-
-        function renderCurrentSlide() {
-            const canvas = document.getElementById('currentSlide');
-            canvas.innerHTML = '';
-            canvas.style.backgroundColor = slides[currentSlideIndex].background;
-
-            const content = createSlideContent();
-            content.innerHTML = slides[currentSlideIndex].content;
-            canvas.appendChild(content);
-            updateSlidePreview(currentSlideIndex);
         }
 
         function updateSlideBackground(color) {
@@ -570,59 +702,8 @@
         function updateSlidePreview(index) {
             const preview = document.querySelectorAll('.slide-preview')[index];
             if (preview) {
-                preview.style.backgroundColor = slides[index].background;
+                preview.style.backgroundColor = slides[index].background || '#ffffff';
             }
-        }
-
-        async function generatePPT() {
-            try {
-                const pptx = new PptxGenJS();
-                
-                for (const slide of slides) {
-                    const pptSlide = pptx.addSlide();
-                    pptSlide.background = { color: slide.background };
-
-                    if (slide.content.trim()) {
-                        // تبدیل محتوای HTML به متن ساده برای PowerPoint
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = slide.content;
-                        
-                        pptSlide.addText(tempDiv.innerText, {
-                            x: '5%',
-                            y: '5%',
-                            w: '90%',
-                            h: '90%',
-                            fontSize: 24,
-                            fontFace: 'Vazirmatn',
-                            color: '000000',
-                            rtlMode: true
-                        });
-                    }
-                }
-
-                await pptx.writeFile({ fileName: `presentation-${Date.now()}.pptx` });
-                alert('پاورپوینت با موفقیت ساخته شد!');
-
-            } catch (error) {
-                alert(`خطا در ساخت پاورپوینت: ${error.message}`);
-                console.error(error);
-            }
-        }
-
-        function rgbToHex(rgb) {
-            if (rgb.startsWith('#')) return rgb;
-            const values = rgb.match(/\d+/g);
-            return values ? `#${values.map(x => parseInt(x).toString(16).padStart(2, '0')).join('')}` : '#000000';
-        }
-
-        function saveState() {
-            const currentContent = document.querySelector('.slide-content');
-            if (currentContent) {
-                slides[currentSlideIndex].content = currentContent.innerHTML;
-            }
-            
-            localStorage.setItem('slides', JSON.stringify(slides));
-            localStorage.setItem('currentSlideIndex', currentSlideIndex);
         }
 
         function loadState() {
