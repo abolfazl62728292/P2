@@ -1,19 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ساخت حرفه‌ای پاورپوینت</title>
+    <title>ساخت آنلاین پاورپوینت</title>
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&family=Lalezar&family=Yekan&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
             --primary-light: #60a5fa;
+            --primary-dark: #1d4ed8;
             --danger: #dc2626;
             --success: #059669;
-            --bg: #f3f4f6;
+            --bg: #f8fafc;
             --border: #e2e8f0;
+            --padding-page: 1rem;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
         }
 
         * {
@@ -29,122 +35,116 @@
             line-height: 1.7;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            padding: var(--padding-page);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 1rem;
+            height: calc(100vh - 120px);
+            margin-top: 1rem;
         }
 
         .main-toolbar {
-            background: #f8f9fa;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
+            background: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
             display: flex;
-            gap: 1rem;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: 60px;
-            justify-content: flex-end;
+            gap: 0.5rem;
+            position: fixed;
+            top: var(--padding-page);
+            right: calc(250px + 2rem);
+            left: var(--padding-page);
+            z-index: 100;
         }
 
         .toolbar-group {
             display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            padding: 0 0.5rem;
+            gap: 0.25rem;
+            padding: 0.25rem;
             border-right: 1px solid var(--border);
         }
 
-        .main-content {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            overflow: hidden;
-            direction: ltr;
+        .toolbar-group:last-child {
+            border-right: none;
         }
 
         .slide-list {
-            order: 2;
             background: white;
-            border-right: 1px solid var(--border);
+            border-radius: 8px;
             padding: 1rem;
             overflow-y: auto;
-            height: calc(100vh - 60px);
-            position: sticky;
-            top: 60px;
-        }
-
-        .slide-workspace {
-            order: 1;
-            padding: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            background: var(--bg);
-            overflow-y: auto;
-            height: calc(100vh - 60px);
-            scroll-behavior: smooth;
-        }
-
-        .slide-canvas {
-            width: 100%;
-            max-width: calc((100vh - 120px) * 16/9);
-            background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: relative;
-            aspect-ratio: 16/9;
-            margin: 0 auto;
+            height: calc(100vh - 2rem);
+            position: fixed;
+            right: var(--padding-page);
+            top: var(--padding-page);
+            width: 250px;
+            box-shadow: var(--shadow-md);
         }
 
         .slide-preview {
-            position: relative;
-            width: 100%;
+            width: 160px;
             aspect-ratio: 16/9;
-            margin: 0.5rem 0;
-            border: 2px solid var(--border);
+            margin: 0.5rem auto;
+            border: 1px solid var(--border);
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         .slide-preview:hover {
-            border-color: var(--primary-light);
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
         }
 
         .slide-preview.active {
-            border-color: var(--primary);
+            border: 2px solid var(--primary);
             box-shadow: 0 0 0 2px var(--primary-light);
-            transform: scale(1.02);
         }
 
-        .text-box-wrapper {
+        .slide-workspace {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 3.5rem;
+            height: calc(100vh - 5.5rem);
+            overflow-y: auto;
+        }
+
+        .slide-canvas {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            margin: 0 auto;
+            max-width: 1000px;
+            width: 100%;
+            height: auto;
+            min-height: 80vh;
             position: relative;
-            margin-bottom: 10px;
+            overflow-y: auto;
         }
 
         .text-box {
-            position: relative;
-            margin: 10px;
-            padding: 10px;
-            border: 1px dashed transparent;
+            margin: 0.5rem;
+            padding: 0.75rem;
             border-radius: 4px;
-            min-height: auto;
-            cursor: text;
+            background: white;
+            box-shadow: var(--shadow-sm);
             transition: all 0.2s ease;
-            line-height: 1.5;
+            min-height: 40px;
+            cursor: text;
         }
 
         .text-box:hover {
-            border-color: var(--border);
+            border-color: var(--primary-light);
         }
 
         .text-box:focus {
-            border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
         .text-box-controls {
@@ -153,24 +153,111 @@
             right: 0;
             display: none;
             background: white;
-            padding: 4px;
+            padding: 0.25rem;
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
             z-index: 100;
             gap: 4px;
             align-items: center;
-            transition: all 0.2s ease;
-            border: 1px solid var(--border);
         }
 
         .text-box-wrapper:hover .text-box-controls {
             display: flex;
         }
 
+        .btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.9rem;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: #4b5563;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border-color: #b91c1c;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: #047857;
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .toolbar-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .slide-preview:hover .delete-btn {
+            display: flex;
+        }
+
         .add-text-box {
             position: fixed;
             bottom: 20px;
-            right: 320px;
+            right: calc(250px + 2rem);
             background: var(--primary);
             color: white;
             border: none;
@@ -182,92 +269,107 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
             transition: all 0.2s ease;
-            z-index: 1000;
         }
 
         .add-text-box:hover {
-            background: var(--primary-light);
             transform: scale(1.1);
+            background: var(--primary-light);
         }
 
-        .btn, .toolbar-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .text-box-wrapper {
+            animation: slideIn 0.2s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
             border-radius: 4px;
-            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
-            color: #4b5563;
-            cursor: pointer;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        .btn:hover, .toolbar-btn:hover {
-            background: linear-gradient(to bottom, #f0f0f0, #e5e5e5);
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background: linear-gradient(to bottom, var(--primary), #1d4ed8);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(to bottom, var(--success), #047857);
-            color: white;
-        }
-
-        .style-select {
-            height: 32px;
-            padding: 0 0.5rem;
-            border: 1px solid var(--border);
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
             border-radius: 4px;
-            background: white;
-            min-width: 80px;
-            font-family: inherit;
         }
 
-        @media (orientation: portrait) {
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        @media (orientation: landscape) and (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr 200px;
+            }
+
+            .slide-list {
+                width: 200px;
+            }
+
+            .slide-preview {
+                width: 140px;
+            }
+
+            .main-toolbar {
+                right: calc(200px + 2rem);
+            }
+
+            .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.85rem;
+                height: 28px;
+            }
+
+            .add-text-box {
+                right: calc(200px + 2rem);
+            }
+        }
+
+        @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
 
             .slide-list {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 30%;
-                z-index: 90;
+                width: 100%;
+                height: 120px;
+                display: flex;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 0.5rem;
+            }
+
+            .slide-preview {
+                flex: 0 0 140px;
+                margin: 0 0.25rem;
+            }
+
+            .main-toolbar {
+                right: var(--padding-page);
             }
 
             .add-text-box {
-                right: 20px;
-                bottom: calc(30% + 20px);
-            }
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .main-toolbar {
-                height: 50px;
-            }
-
-            .slide-workspace {
-                height: calc(100vh - 50px);
-            }
-
-            .slide-list {
-                height: calc(100vh - 50px);
-                top: 50px;
+                right: var(--padding-page);
             }
         }
     </style>
 </head>
+
 <body>
     <div class="main-toolbar">
         <div class="toolbar-group">
@@ -300,23 +402,20 @@
         <div class="slide-workspace">
             <div class="slide-canvas" id="currentSlide">
                 <div class="slide-content" id="slideContent">
-                    <!-- باکس‌های متن اینجا اضافه می‌شوند -->
+                    <!-- محتوای اسلاید اینجا قرار می‌گیرد -->
                 </div>
                 <button class="add-text-box" onclick="addNewTextBox()" title="افزودن باکس متن جدید">+</button>
             </div>
         </div>
-
+        
         <div class="slide-list" id="slideList">
-            <!-- پیش‌نمایش اسلایدها -->
+            <!-- پیش‌نمایش اسلایدها اینجا قرار می‌گیرد -->
         </div>
     </div>
 
-
-        <script>
+    <script>
         let slides = [];
         let currentSlideIndex = 0;
-        let isDragging = false;
-        let activeTextBox = null;
 
         function addNewTextBox() {
             const slideContent = document.getElementById('slideContent');
@@ -332,47 +431,42 @@
             textBox.style.fontSize = '24px';
             textBox.style.fontFamily = 'Vazirmatn';
             
-            // تنظیم event listeners
             textBox.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    if (e.shiftKey) return;
-                    e.preventDefault();
-                    addNewTextBox();
+                    if (e.shiftKey) {
+                        return;
+                    } else {
+                        e.preventDefault();
+                        addNewTextBox();
+                    }
                 }
-            });
-
-            textBox.addEventListener('focus', () => activeTextBox = textBox);
-            textBox.addEventListener('blur', () => {
-                if (!isDragging) activeTextBox = null;
-            });
-            textBox.addEventListener('input', () => {
-                updateTextBoxSize(textBox);
-                saveState();
             });
 
             const controls = document.createElement('div');
             controls.className = 'text-box-controls';
+            
             controls.innerHTML = `
-                <span class="move-handle" title="جابجایی">⋮</span>
-                <select class="style-select" onchange="changeFont(this)">
+                <span class="move-handle" title="جابجایی باکس">⋮</span>
+                <select class="style-select" onchange="changeFont(this)" title="نوع فونت">
                     <option value="Vazirmatn">وزیر</option>
                     <option value="Lalezar">لاله‌زار</option>
                     <option value="Yekan">یکان</option>
                 </select>
-                <input type="number" class="style-select" value="24" min="8" max="72" 
-                       onchange="changeFontSize(this)" title="سایز فونت">
-                <input type="color" value="#000000" onchange="changeTextColor(this)">
-                <button class="toolbar-btn" onclick="toggleTextBold(this)">B</button>
-                <button class="toolbar-btn" onclick="toggleTextItalic(this)">I</button>
-                <button class="toolbar-btn active" onclick="alignText(this, 'right')">⇚</button>
-                <button class="toolbar-btn" onclick="alignText(this, 'center')">☰</button>
-                <button class="toolbar-btn" onclick="alignText(this, 'left')">⇛</button>
-                <button class="toolbar-btn" onclick="deleteTextBox(this)">×</button>
+                <input type="number" class="style-select" placeholder="سایز" 
+                       onchange="changeFontSize(this)" min="8" max="72" value="24" title="سایز فونت">
+                <input type="color" title="رنگ متن" onchange="changeTextColor(this)" value="#000000">
+                <button class="toolbar-btn" onclick="toggleTextBold(this)" title="ضخیم">B</button>
+                <button class="toolbar-btn" onclick="toggleTextItalic(this)" title="مورب">I</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'center')" title="وسط‌چین">☰</button>
+                <button class="toolbar-btn" onclick="alignText(this, 'left')" title="چپ‌چین">⇛</button>
+                <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
             `;
             
             wrapper.appendChild(controls);
             wrapper.appendChild(textBox);
             slideContent.appendChild(wrapper);
+            
             enableDragAndDrop(wrapper);
             textBox.focus();
             saveState();
@@ -390,7 +484,7 @@
             const size = Math.min(Math.max(parseInt(input.value) || 24, 8), 72);
             textBox.style.fontSize = size + 'px';
             textBox.dataset.fontSize = size;
-            updateTextBoxSize(textBox);
+            input.value = size;
             saveState();
         }
 
@@ -422,8 +516,10 @@
         function alignText(button, alignment) {
             const controls = button.closest('.text-box-controls');
             const textBox = button.closest('.text-box-wrapper').querySelector('.text-box');
+            
             controls.querySelectorAll('button[onclick*="alignText"]')
                 .forEach(btn => btn.classList.remove('active'));
+            
             textBox.style.textAlign = alignment;
             button.classList.add('active');
             textBox.dataset.align = alignment;
@@ -431,44 +527,41 @@
         }
 
         function deleteTextBox(button) {
-            const wrapper = button.closest('.text-box-wrapper');
             if (confirm('آیا از حذف این باکس متن مطمئن هستید؟')) {
-                wrapper.style.opacity = '0';
-                wrapper.style.transform = 'translateX(-20px)';
-                setTimeout(() => {
-                    wrapper.remove();
-                    saveState();
-                }, 200);
+                button.closest('.text-box-wrapper').remove();
+                saveState();
             }
         }
 
         function enableDragAndDrop(wrapper) {
             const handle = wrapper.querySelector('.move-handle');
-            let currentY, initialY;
+            let isDragging = false;
+            let currentY;
+            let initialY;
             
-            const startDrag = (e) => {
+            handle.addEventListener('mousedown', function(e) {
                 isDragging = true;
                 currentY = wrapper.offsetTop;
-                initialY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                initialY = e.clientY;
+                
                 wrapper.style.position = 'absolute';
                 wrapper.style.width = '90%';
                 wrapper.style.zIndex = '1000';
                 wrapper.style.opacity = '0.9';
-                wrapper.style.transform = 'scale(1.02)';
-            };
+            });
             
-            const onDrag = (e) => {
+            document.addEventListener('mousemove', function(e) {
                 if (!isDragging) return;
-                const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                const deltaY = y - initialY;
-                wrapper.style.top = `${currentY + deltaY}px`;
-            };
+                
+                const deltaY = e.clientY - initialY;
+                wrapper.style.top = currentY + deltaY + 'px';
+            });
             
-            const endDrag = () => {
+            document.addEventListener('mouseup', function() {
                 if (!isDragging) return;
                 isDragging = false;
+                
                 wrapper.style.opacity = '1';
-                wrapper.style.transform = 'scale(1)';
                 
                 const wrappers = Array.from(document.querySelectorAll('.text-box-wrapper'));
                 wrappers.sort((a, b) => a.offsetTop - b.offsetTop);
@@ -483,65 +576,204 @@
                 });
                 
                 saveState();
-            };
-
-            // ماوس
-            handle.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', onDrag);
-            document.addEventListener('mouseup', endDrag);
-
-            // لمسی
-            handle.addEventListener('touchstart', startDrag);
-            document.addEventListener('touchmove', onDrag);
-            document.addEventListener('touchend', endDrag);
+            });
         }
 
         function saveState() {
             const currentSlide = slides[currentSlideIndex];
-            currentSlide.textBoxes = Array.from(document.querySelectorAll('.text-box-wrapper'))
-                .map(wrapper => {
-                    const textBox = wrapper.querySelector('.text-box');
-                    return {
-                        content: textBox.innerHTML,
-                        style: {
-                            fontFamily: textBox.dataset.fontFamily || 'Vazirmatn',
-                            fontSize: textBox.dataset.fontSize || '24',
-                            color: textBox.dataset.color || '#000000',
-                            bold: textBox.dataset.bold === 'true',
-                            italic: textBox.dataset.italic === 'true',
-                            align: textBox.dataset.align || 'right'
-                        }
-                    };
-                });
+            const textBoxes = document.querySelectorAll('.text-box-wrapper');
+            
+            currentSlide.textBoxes = Array.from(textBoxes).map(wrapper => {
+                const textBox = wrapper.querySelector('.text-box');
+                return {
+                    content: textBox.innerHTML,
+                    style: {
+                        fontFamily: textBox.dataset.fontFamily || 'Vazirmatn',
+                        fontSize: textBox.dataset.fontSize || '24',
+                        color: textBox.dataset.color || '#000000',
+                        bold: textBox.dataset.bold === 'true',
+                        italic: textBox.dataset.italic === 'true',
+                        align: textBox.dataset.align || 'right'
+                    }
+                };
+            });
             
             localStorage.setItem('slides', JSON.stringify(slides));
             localStorage.setItem('currentSlideIndex', currentSlideIndex);
+        }
+
+        function renderCurrentSlide() {
+            const canvas = document.getElementById('currentSlide');
+            const content = document.getElementById('slideContent');
+            content.innerHTML = '';
+            
+            canvas.style.backgroundColor = slides[currentSlideIndex].background || '#ffffff';
+            document.getElementById('bgColor').value = slides[currentSlideIndex].background || '#ffffff';
+            
+            if (slides[currentSlideIndex].textBoxes) {
+                slides[currentSlideIndex].textBoxes.forEach(textBoxData => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'text-box-wrapper';
+                    
+                    const textBox = document.createElement('div');
+                    textBox.className = 'text-box';
+                    textBox.contentEditable = true;
+                    textBox.innerHTML = textBoxData.content;
+                    textBox.style.fontFamily = textBoxData.style.fontFamily;
+                    textBox.style.fontSize = textBoxData.style.fontSize + 'px';
+                    textBox.style.color = textBoxData.style.color;
+                    textBox.style.fontWeight = textBoxData.style.bold ? 'bold' : 'normal';
+                    textBox.style.fontStyle = textBoxData.style.italic ? 'italic' : 'normal';
+                    textBox.style.textAlign = textBoxData.style.align;
+                    
+                    Object.assign(textBox.dataset, {
+                        fontFamily: textBoxData.style.fontFamily,
+                        fontSize: textBoxData.style.fontSize,
+                        color: textBoxData.style.color,
+                        bold: textBoxData.style.bold,
+                        italic: textBoxData.style.italic,
+                        align: textBoxData.style.align
+                    });
+                    
+                    const controls = document.createElement('div');
+                    controls.className = 'text-box-controls';
+                    controls.innerHTML = `
+                        <span class="move-handle" title="جابجایی">⋮</span>
+                        <select class="style-select" onchange="changeFont(this)" title="نوع فونت">
+                            <option value="Vazirmatn" ${textBoxData.style.fontFamily === 'Vazirmatn' ? 'selected' : ''}>وزیر</option>
+                            <option value="Lalezar" ${textBoxData.style.fontFamily === 'Lalezar' ? 'selected' : ''}>لاله‌زار</option>
+                            <option value="Yekan" ${textBoxData.style.fontFamily === 'Yekan' ? 'selected' : ''}>یکان</option>
+                        </select>
+                        <input type="number" class="style-select" placeholder="سایز" 
+                               onchange="changeFontSize(this)" min="8" max="72" 
+                               value="${textBoxData.style.fontSize}" title="سایز فونت">
+                        <input type="color" title="رنگ متن" onchange="changeTextColor(this)"
+                               value="${textBoxData.style.color}">
+                        <button class="toolbar-btn ${textBoxData.style.bold ? 'active' : ''}" 
+                                onclick="toggleTextBold(this)" title="ضخیم">B</button>
+                        <button class="toolbar-btn ${textBoxData.style.italic ? 'active' : ''}" 
+                                onclick="toggleTextItalic(this)" title="مورب">I</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'right' ? 'active' : ''}" 
+                                onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'center' ? 'active' : ''}" 
+                                onclick="alignText(this, 'center')" title="وسط‌چین">☰</button>
+                        <button class="toolbar-btn ${textBoxData.style.align === 'left' ? 'active' : ''}" 
+                                onclick="alignText(this, 'left')" title="چپ‌چین">⇛</button>
+                        <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
+                    `;
+                    
+                    wrapper.appendChild(controls);
+                    wrapper.appendChild(textBox);
+                    content.appendChild(wrapper);
+                    
+                    enableDragAndDrop(wrapper);
+                });
+            }
+            
             updateSlidePreview(currentSlideIndex);
+        }
+
+        function addNewSlide() {
+            const slide = {
+                id: Date.now(),
+                background: '#ffffff',
+                textBoxes: []
+            };
+            slides.push(slide);
+            currentSlideIndex = slides.length - 1;
+            updateSlidesList();
+            renderCurrentSlide();
+            saveState();
+        }
+
+        function deleteCurrentSlide() {
+            if (slides.length <= 1) {
+                alert('نمی‌توانید تنها اسلاید را حذف کنید');
+                return;
+            }
+
+            if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+                slides.splice(currentSlideIndex, 1);
+                if (currentSlideIndex >= slides.length) {
+                    currentSlideIndex = slides.length - 1;
+                }
+                updateSlidesList();
+                renderCurrentSlide();
+                saveState();
+            }
+        }
+
+        function updateSlidesList() {
+            const container = document.getElementById('slideList');
+            container.innerHTML = '';
+            
+            slides.forEach((slide, index) => {
+                const preview = document.createElement('div');
+                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
+                preview.style.backgroundColor = slide.background || '#ffffff';
+                preview.onclick = () => switchSlide(index);
+                
+                const number = document.createElement('div');
+                number.className = 'slide-number';
+                number.textContent = (index + 1).toString();
+                preview.appendChild(number);
+                
+                if (slides.length > 1) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+                            slides.splice(index, 1);
+                            if (currentSlideIndex >= index) {
+                                currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+                            }
+                            updateSlidesList();
+                            renderCurrentSlide();
+                            saveState();
+                        }
+                    };
+                    preview.appendChild(deleteBtn);
+                }
+                
+                container.appendChild(preview);
+            });
+        }
+
+        function switchSlide(index) {
+            currentSlideIndex = index;
+            updateSlidesList();
+            renderCurrentSlide();
         }
 
         function updateSlideBackground(color) {
             slides[currentSlideIndex].background = color;
             document.getElementById('currentSlide').style.backgroundColor = color;
+            document.getElementById('bgColor').value = color;
             updateSlidePreview(currentSlideIndex);
             saveState();
         }
 
+        function updateSlidePreview(index) {
+            const preview = document.querySelectorAll('.slide-preview')[index];
+            if (preview) {
+                preview.style.backgroundColor = slides[index].background || '#ffffff';
+            }
+        }
+
         async function generatePPT() {
             try {
-                const loadingButton = document.querySelector('.btn-success');
-                loadingButton.innerHTML = '<span class="icon">⏳</span> در حال ساخت...';
-                loadingButton.disabled = true;
-
                 const pptx = new PptxGenJS();
-                pptx.layout = 'LAYOUT_16x9';
                 
                 for (const slide of slides) {
                     const pptSlide = pptx.addSlide();
                     pptSlide.background = { color: slide.background || '#FFFFFF' };
 
-                    if (slide.textBoxes?.length > 0) {
+                    if (slide.textBoxes && slide.textBoxes.length > 0) {
                         slide.textBoxes.forEach((textBox, index) => {
-                            const yPos = (index * (parseInt(textBox.style.fontSize) / 4)) + 5;
+                            const yPos = (index * 15) + 5;
+                            
                             pptSlide.addText(textBox.content.replace(/<[^>]*>/g, ''), {
                                 x: '5%',
                                 y: yPos + '%',
@@ -552,7 +784,8 @@
                                 color: textBox.style.color.replace('#', ''),
                                 bold: textBox.style.bold,
                                 italic: textBox.style.italic,
-                                align: textBox.style.align,
+                                align: textBox.style.align === 'center' ? 'center' : 
+                                       textBox.style.align === 'left' ? 'left' : 'right',
                                 rtlMode: true,
                                 breakLine: true,
                                 isTextBox: true
@@ -561,19 +794,44 @@
                     }
                 }
 
-                await pptx.writeFile(`presentation-${new Date().toLocaleString('fa-IR').replace(/[/:]/g, '-')}.pptx`);
-                loadingButton.innerHTML = '<span class="icon">✅</span> دانلود شد';
-                setTimeout(() => {
-                    loadingButton.innerHTML = '<span class="icon">⬇️</span> دانلود پاورپوینت';
-                    loadingButton.disabled = false;
-                }, 2000);
+                await pptx.writeFile({ 
+                    fileName: `presentation-${new Date().toLocaleString('fa-IR').replace(/[/:]/g, '-')}.pptx` 
+                });
+                alert('پاورپوینت با موفقیت ساخته شد!');
 
             } catch (error) {
+                alert(`خطا در ساخت پاورپوینت: ${error.message}`);
                 console.error(error);
-                alert('خطا در ساخت پاورپوینت: ' + error.message);
             }
         }
 
+        // کلیدهای میانبر
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        generatePPT();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        addNewSlide();
+                        break;
+                }
+            }
+        });
+
+        function optimizeMobileLayout() {
+            const isMobileLandscape = window.matchMedia("(orientation: landscape) and (max-width: 1024px)").matches;
+            if (isMobileLandscape) {
+                document.documentElement.style.setProperty('--padding-page', '0.75rem');
+            }
+        }
+
+        window.addEventListener('resize', optimizeMobileLayout);
+        window.addEventListener('orientationchange', optimizeMobileLayout);
+
+        // اجرای اولیه برنامه
         function loadState() {
             const savedSlides = localStorage.getItem('slides');
             const savedIndex = localStorage.getItem('currentSlideIndex');
@@ -588,14 +846,8 @@
             }
         }
 
-        // اجرای اولیه برنامه
         window.addEventListener('load', loadState);
-
-        // هشدار قبل از بستن صفحه
-        window.addEventListener('beforeunload', e => {
-            e.preventDefault();
-            e.returnValue = '';
-        });
     </script>
 </body>
 </html>
+    
