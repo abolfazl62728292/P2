@@ -7,123 +7,392 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&family=Lalezar&family=Yekan&display=swap" rel="stylesheet">
     <style>
-        /* استایل‌های قبلی حفظ می‌شوند */
-        /* استایل‌های جدید برای قابلیت‌های اضافه شده */
-        .template-gallery {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: none;
-            max-width: 80vw;
-            max-height: 80vh;
-            overflow-y: auto;
+        :root {
+            --primary: #2563eb;
+            --primary-light: #60a5fa;
+            --danger: #dc2626;
+            --success: #059669;
+            --bg: #f3f4f6;
+            --border: #e2e8f0;
         }
 
-        .template-item {
-            width: 200px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            background: var(--bg);
+            color: #334155;
+            line-height: 1.7;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-toolbar {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0 0.5rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            overflow: hidden;
+        }
+
+        .slide-list {
+            background: white;
+            border-left: 1px solid var(--border);
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slide-preview {
+            position: relative;
+            width: 180px;
             aspect-ratio: 16/9;
-            margin: 10px;
+            margin: 0.5rem 0;
             border: 2px solid var(--border);
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: inline-block;
         }
 
-        .template-item:hover {
+        .slide-preview:hover {
+            border-color: var(--primary-light);
+        }
+
+        .slide-preview.active {
             border-color: var(--primary);
-            transform: scale(1.05);
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        .toolbar-group.formatting {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .format-button {
-            padding: 5px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .slide-transition-select {
-            padding: 5px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-        }
-
-        .slide-notes {
+        .slide-number {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background: rgba(255,255,255,0.9);
-            border-top: 1px solid var(--border);
-            padding: 10px;
-            font-size: 14px;
-            display: none;
+            bottom: 5px;
+            right: 5px;
+            font-size: 12px;
+            color: #666;
         }
 
-        .show-notes .slide-notes {
-            display: block;
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .slide-preview:hover .delete-btn {
+            display: flex;
+        }
+
+        .slide-workspace {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .slide-canvas {
+            width: 90%;
+            height: 90%;
+            max-width: 1200px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            aspect-ratio: 16/9;
         }
 
         .slide-content {
-            height: calc(100% - 100px);
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            outline: none;
+            overflow-y: auto;
+            font-family: Vazirmatn;
+            font-size: 24px;
+            line-height: 1.5;
+            background: transparent;
         }
 
-        .shape-toolbar {
+        .slide-content:empty:before {
+            content: 'برای نوشتن کلیک کنید...';
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .formatting-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .formatting-toolbar.show {
+            transform: translateY(0);
+        }
+
+        .format-tools-toggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 101;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .slide-shape {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            min-width: 50px;
+            min-height: 50px;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .style-select {
+            height: 32px;
+            padding: 0 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            min-width: 100px;
+            font-family: inherit;
+        }
+
+        .color-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            background: white;
-            padding: 5px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .shape-button {
-            width: 30px;
-            height: 30px;
+        .color-group input[type="color"] {
+            width: 32px;
+            height: 32px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .color-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: #4b5563;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
             padding: 0;
             border: 1px solid var(--border);
             background: white;
             border-radius: 4px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg);
+        }
+
+        .toolbar-btn.active {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .slide-list {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 30%;
+                z-index: 90;
+            }
+
+            .main-toolbar {
+                padding: 0.25rem;
+                gap: 0.25rem;
+            }
+
+            .toolbar-group {
+                padding: 0.25rem;
+                gap: 0.25rem;
+                border: none;
+            }
+
+            .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .style-select {
+                height: 28px;
+                min-width: auto;
+                padding: 0 0.25rem;
+            }
+
+            .slide-preview {
+                width: 120px;
+            }
+
+            .slide-workspace {
+                padding: 0.5rem;
+            }
+
+            .formatting-toolbar {
+                height: auto;
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+
+            .slide-content {
+                padding: 1rem;
+                font-size: 18px;
+            }
+        }
+
+        /* اضافه کردن انیمیشن‌ها */
+        @keyframes slideIn {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
         }
     </style>
 </head>
-<body>
-    <!-- نوار ابزار اصلی با قابلیت‌های جدید -->
+
+
+    <body>
     <div class="main-toolbar">
         <div class="toolbar-group">
             <button class="btn btn-primary" onclick="addNewSlide()">
                 <span class="icon">+</span>
                 اسلاید جدید
-            </button>
-            <button class="btn" onclick="showTemplates()">
-                <span class="icon">📋</span>
-                قالب‌ها
             </button>
             <button class="btn btn-danger" onclick="deleteCurrentSlide()">
                 <span class="icon">×</span>
@@ -131,8 +400,8 @@
             </button>
         </div>
         
-        <div class="toolbar-group formatting">
-            <input type="text" class="style-select font-size" placeholder="اندازه فونت" oninput="applyStyleToSelection('fontSize', this.value + 'px')" title="اندازه فونت">
+        <div class="toolbar-group">
+            <input type="text" class="style-select font-size" placeholder="اندازه فونت" value="24" oninput="applyStyleToSelection('fontSize', this.value + 'px')" title="اندازه فونت">
             <select class="style-select font-family" onchange="applyStyleToSelection('fontFamily', this.value)">
                 <option value="Vazirmatn">وزیر</option>
                 <option value="Lalezar">لاله‌زار</option>
@@ -140,15 +409,28 @@
             </select>
             <div class="color-group">
                 <input type="color" id="textColor" onchange="applyStyleToSelection('color', this.value)" title="رنگ متن">
-                <label for="textColor" class="color-label">رنگ متن</label>
+                <label for="textColor" class="color-label">متن</label>
             </div>
-            <button class="format-button" onclick="applyStyleToSelection('textAlign', 'right')">⇚</button>
-            <button class="format-button" onclick="applyStyleToSelection('textAlign', 'center')">☰</button>
-            <button class="format-button" onclick="applyStyleToSelection('textAlign', 'left')">⇛</button>
-            <button class="format-button" onclick="toggleStyle('bold')">B</button>
-            <button class="format-button" onclick="toggleStyle('italic')">I</button>
-            <button class="format-button" onclick="toggleBulletList()">•</button>
-            <button class="format-button" onclick="toggleNumberedList()">1.</button>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'right')" title="راست‌چین">
+                <span class="icon">⇚</span>
+            </button>
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'center')" title="وسط‌چین">
+                <span class="icon">☰</span>
+            </button>
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'left')" title="چپ‌چین">
+                <span class="icon">⇛</span>
+            </button>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="toggleStyle('bold')" title="ضخیم">B</button>
+            <button class="toolbar-btn" onclick="toggleStyle('italic')" title="مورب">I</button>
+            <button class="toolbar-btn" onclick="toggleFormattingTools()" title="ابزارهای بیشتر">
+                <span class="icon">▼</span>
+            </button>
         </div>
 
         <div class="toolbar-group">
@@ -156,26 +438,12 @@
                 <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه">
                 <label for="bgColor" class="color-label">پس‌زمینه</label>
             </div>
-            <select class="slide-transition-select" onchange="updateSlideTransition(this.value)">
-                <option value="none">بدون جلوه</option>
-                <option value="fade">محو شدن</option>
-                <option value="slide">اسلاید</option>
-                <option value="zoom">بزرگنمایی</option>
-            </select>
         </div>
 
         <div class="toolbar-group">
-            <button class="btn" onclick="toggleNotes()">
-                <span class="icon">📝</span>
-                یادداشت‌ها
-            </button>
             <button class="btn btn-success" onclick="generatePPT()">
                 <span class="icon">⬇️</span>
                 دانلود
-            </button>
-            <button class="btn" onclick="startPresentation()">
-                <span class="icon">▶️</span>
-                نمایش
             </button>
         </div>
     </div>
@@ -188,35 +456,31 @@
         <div class="slide-workspace">
             <div class="slide-canvas" id="currentSlide">
                 <!-- محتوای اسلاید فعلی -->
-                <div class="shape-toolbar">
-                    <button class="shape-button" onclick="addShape('rectangle')">▢</button>
-                    <button class="shape-button" onclick="addShape('circle')">○</button>
-                    <button class="shape-button" onclick="addShape('arrow')">→</button>
-                </div>
-                <div class="slide-notes" contenteditable="true" spellcheck="false">
-                    یادداشت‌های اسلاید...
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- گالری قالب‌ها -->
-    <div class="template-gallery" id="templateGallery">
-        <h3>قالب‌های آماده</h3>
-        <div class="template-list">
-            <!-- قالب‌ها به صورت پویا اضافه می‌شوند -->
-        </div>
+    <div class="formatting-toolbar" id="formattingToolbar">
+        <button class="toolbar-btn" onclick="toggleBulletList()">•</button>
+        <button class="toolbar-btn" onclick="toggleNumberedList()">1.</button>
+        <button class="toolbar-btn" onclick="addShape('rectangle')">▢</button>
+        <button class="toolbar-btn" onclick="addShape('circle')">○</button>
+        <button class="toolbar-btn" onclick="addShape('arrow')">→</button>
+        <button class="toolbar-btn" onclick="insertImage()">🖼️</button>
+        <input type="file" id="imageInput" accept="image/*" style="display: none" onchange="handleImageUpload(event)">
     </div>
 
     <script>
         let slides = [];
         let currentSlideIndex = 0;
-        let templates = [
-            { name: 'ساده', background: '#ffffff' },
-            { name: 'تیره', background: '#333333' },
-            { name: 'گرادیان', background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)' },
-            // قالب‌های بیشتر...
-        ];
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        let activeShape = null;
 
         function createSlideContent() {
             const contentDiv = document.createElement('div');
@@ -257,16 +521,33 @@
                 document.querySelector('#textColor').value = 
                     rgbToHex(computedStyle.color);
 
-                document.querySelector('[onclick="toggleStyle(\'bold\')"]')
-                    .classList.toggle('active', computedStyle.fontWeight >= 700);
-                document.querySelector('[onclick="toggleStyle(\'italic\')"]')
-                    .classList.toggle('active', computedStyle.fontStyle === 'italic');
+                // به‌روزرسانی وضعیت دکمه‌های فعال
+                updateButtonStates(computedStyle);
             } catch (error) {
                 console.log('Selection update error:', error);
             }
         }
 
-        function applyStyleToSelection(property, value) {
+        function updateButtonStates(computedStyle) {
+            document.querySelector('[onclick="toggleStyle(\'bold\')"]')
+                .classList.toggle('active', computedStyle.fontWeight >= 700);
+            document.querySelector('[onclick="toggleStyle(\'italic\')"]')
+                .classList.toggle('active', computedStyle.fontStyle === 'italic');
+            
+            // به‌روزرسانی دکمه‌های تراز متن
+            const alignButtons = {
+                'right': '[onclick="applyStyleToSelection(\'textAlign\', \'right\')"]',
+                'center': '[onclick="applyStyleToSelection(\'textAlign\', \'center\')"]',
+                'left': '[onclick="applyStyleToSelection(\'textAlign\', \'left\')"]'
+            };
+
+            Object.keys(alignButtons).forEach(align => {
+                document.querySelector(alignButtons[align])
+                    .classList.toggle('active', computedStyle.textAlign === align);
+            });
+        }
+
+                function applyStyleToSelection(property, value) {
             const selection = window.getSelection();
             if (!selection.toString()) return;
 
@@ -274,8 +555,10 @@
                 const range = selection.getRangeAt(0);
                 const span = document.createElement('span');
                 
+                // اعمال استایل جدید
                 span.style[property] = value;
                 
+                // حفظ استایل‌های قبلی
                 if (range.commonAncestorContainer.parentNode !== document.querySelector('.slide-content')) {
                     const parentStyles = window.getComputedStyle(range.commonAncestorContainer.parentNode);
                     const stylesToKeep = ['fontSize', 'fontFamily', 'color', 'fontWeight', 'fontStyle', 'textAlign'];
@@ -296,7 +579,7 @@
                 }
                 
                 cleanupRedundantSpans(document.querySelector('.slide-content'));
-                
+                updateButtonStates(window.getComputedStyle(span));
                 saveState();
                 updateSlidePreview(currentSlideIndex);
             } catch (error) {
@@ -340,25 +623,34 @@
 
         function toggleBulletList() {
             const selection = window.getSelection();
-            if (!selection.toString()) return;
-
-            const list = document.createElement('ul');
-            list.style.listStyleType = 'disc';
+            const content = document.querySelector('.slide-content');
             
-            const selectedText = selection.toString();
-            const lines = selectedText.split('\n');
-            
-            lines.forEach(line => {
-                if (line.trim()) {
-                    const li = document.createElement('li');
-                    li.textContent = line;
-                    list.appendChild(li);
-                }
-            });
-
-            const range = selection.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(list);
+            if (!selection.toString()) {
+                const list = document.createElement('ul');
+                list.style.listStyleType = 'disc';
+                list.style.paddingRight = '20px';
+                const item = document.createElement('li');
+                item.textContent = 'متن جدید';
+                list.appendChild(item);
+                content.appendChild(list);
+            } else {
+                const range = selection.getRangeAt(0);
+                const list = document.createElement('ul');
+                list.style.listStyleType = 'disc';
+                list.style.paddingRight = '20px';
+                
+                const lines = range.toString().split('\n');
+                lines.forEach(line => {
+                    if (line.trim()) {
+                        const li = document.createElement('li');
+                        li.textContent = line.trim();
+                        list.appendChild(li);
+                    }
+                });
+                
+                range.deleteContents();
+                range.insertNode(list);
+            }
             
             saveState();
             updateSlidePreview(currentSlideIndex);
@@ -366,24 +658,32 @@
 
         function toggleNumberedList() {
             const selection = window.getSelection();
-            if (!selection.toString()) return;
-
-            const list = document.createElement('ol');
+            const content = document.querySelector('.slide-content');
             
-            const selectedText = selection.toString();
-            const lines = selectedText.split('\n');
-            
-            lines.forEach(line => {
-                if (line.trim()) {
-                    const li = document.createElement('li');
-                    li.textContent = line;
-                    list.appendChild(li);
-                }
-            });
-
-            const range = selection.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(list);
+            if (!selection.toString()) {
+                const list = document.createElement('ol');
+                list.style.paddingRight = '20px';
+                const item = document.createElement('li');
+                item.textContent = 'متن جدید';
+                list.appendChild(item);
+                content.appendChild(list);
+            } else {
+                const range = selection.getRangeAt(0);
+                const list = document.createElement('ol');
+                list.style.paddingRight = '20px';
+                
+                const lines = range.toString().split('\n');
+                lines.forEach(line => {
+                    if (line.trim()) {
+                        const li = document.createElement('li');
+                        li.textContent = line.trim();
+                        list.appendChild(li);
+                    }
+                });
+                
+                range.deleteContents();
+                range.insertNode(list);
+            }
             
             saveState();
             updateSlidePreview(currentSlideIndex);
@@ -395,93 +695,238 @@
             
             switch(type) {
                 case 'rectangle':
-                    shape.style.width = '100px';
-                    shape.style.height = '60px';
-                    shape.style.border = '2px solid black';
+                    shape.style.width = '80px';
+                    shape.style.height = '50px';
                     break;
                 case 'circle':
-                    shape.style.width = '80px';
-                    shape.style.height = '80px';
+                    shape.style.width = '60px';
+                    shape.style.height = '60px';
                     shape.style.borderRadius = '50%';
-                    shape.style.border = '2px solid black';
                     break;
                 case 'arrow':
                     shape.innerHTML = '→';
-                    shape.style.fontSize = '40px';
+                    shape.style.fontSize = '30px';
+                    shape.style.display = 'flex';
+                    shape.style.alignItems = 'center';
+                    shape.style.justifyContent = 'center';
+                    shape.style.width = '60px';
+                    shape.style.height = '40px';
                     break;
             }
-            
-            shape.style.position = 'absolute';
-            shape.style.left = '50%';
-            shape.style.top = '50%';
-            shape.style.transform = 'translate(-50%, -50%)';
-            shape.style.cursor = 'move';
-            
-            makeElementDraggable(shape);
-            document.querySelector('.slide-content').appendChild(shape);
-            
-            saveState();
-            updateSlidePreview(currentSlideIndex);
-        }
 
-        function makeElementDraggable(element) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            
-            element.onmousedown = dragMouseDown;
+            const content = document.querySelector('.slide-content');
+            content.appendChild(shape);
 
-            function dragMouseDown(e) {
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                
-                element.style.top = (element.offsetTop - pos2) + "px";
-                element.style.left = (element.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
-        }
-
-        function showTemplates() {
-            const gallery = document.getElementById('templateGallery');
-            const templateList = gallery.querySelector('.template-list');
-            templateList.innerHTML = '';
-            
-            templates.forEach(template => {
-                const item = document.createElement('div');
-                item.className = 'template-item';
-                item.style.background = template.background;
-                item.onclick = () => applyTemplate(template);
-                templateList.appendChild(item);
+            // اضافه کردن قابلیت جابجایی لمسی و موس
+            shape.addEventListener('mousedown', dragStart);
+            shape.addEventListener('touchstart', dragStart);
+            shape.addEventListener('dblclick', () => {
+                if (confirm('آیا می‌خواهید این شکل را حذف کنید؟')) {
+                    shape.remove();
+                    saveState();
+                }
             });
             
-            gallery.style.display = 'block';
-        }
-
-        function applyTemplate(template) {
-            updateSlideBackground(template.background);
-            document.getElementById('templateGallery').style.display = 'none';
-        }
-
-        function toggleNotes() {
-            document.querySelector('.slide-canvas').classList.toggle('show-notes');
-        }
-
-        function updateSlideTransition(transition) {
-            slides[currentSlideIndex].transition = transition;
             saveState();
+        }
+
+        function dragStart(e) {
+            if (e.type === "mousedown") {
+                e.preventDefault();
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+            } else {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            }
+
+            activeShape = e.target;
+            isDragging = true;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+
+                if (e.type === "mousemove") {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                } else {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                }
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                activeShape.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        }
+
+        function dragEnd() {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+            
+            saveState();
+        }
+
+                function insertImage() {
+            document.getElementById('imageInput').click();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '80%';
+                    img.style.height = 'auto';
+                    img.className = 'slide-shape';
+                    
+                    const content = document.querySelector('.slide-content');
+                    content.appendChild(img);
+                    
+                    // اضافه کردن قابلیت جابجایی به تصویر
+                    img.addEventListener('mousedown', dragStart);
+                    img.addEventListener('touchstart', dragStart);
+                    img.addEventListener('dblclick', () => {
+                        if (confirm('آیا می‌خواهید این تصویر را حذف کنید؟')) {
+                            img.remove();
+                            saveState();
+                        }
+                    });
+                    
+                    saveState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addNewSlide() {
+            const slide = {
+                id: Date.now(),
+                background: '#ffffff',
+                content: '',
+                shapes: []
+            };
+            slides.push(slide);
+            currentSlideIndex = slides.length - 1;
+            updateSlidesList();
+            renderCurrentSlide();
+            saveState();
+        }
+
+        function deleteCurrentSlide() {
+            if (slides.length <= 1) {
+                alert('نمی‌توانید تنها اسلاید را حذف کنید');
+                return;
+            }
+
+            if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+                slides.splice(currentSlideIndex, 1);
+                if (currentSlideIndex >= slides.length) {
+                    currentSlideIndex = slides.length - 1;
+                }
+                updateSlidesList();
+                renderCurrentSlide();
+                saveState();
+            }
+        }
+
+        function updateSlidesList() {
+            const container = document.getElementById('slideList');
+            container.innerHTML = '';
+            
+            slides.forEach((slide, index) => {
+                const preview = document.createElement('div');
+                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
+                preview.style.backgroundColor = slide.background;
+                preview.onclick = () => switchSlide(index);
+                
+                const number = document.createElement('div');
+                number.className = 'slide-number';
+                number.textContent = (index + 1).toString();
+                preview.appendChild(number);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (slides.length > 1) {
+                        slides.splice(index, 1);
+                        if (currentSlideIndex >= index) {
+                            currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+                        }
+                        updateSlidesList();
+                        renderCurrentSlide();
+                        saveState();
+                    } else {
+                        alert('نمی‌توانید تنها اسلاید را حذف کنید');
+                    }
+                };
+                
+                preview.appendChild(deleteBtn);
+                container.appendChild(preview);
+            });
+        }
+
+        function switchSlide(index) {
+            if (index !== currentSlideIndex) {
+                currentSlideIndex = index;
+                updateSlidesList();
+                renderCurrentSlide();
+            }
+        }
+
+        function renderCurrentSlide() {
+            const canvas = document.getElementById('currentSlide');
+            canvas.innerHTML = '';
+            canvas.style.backgroundColor = slides[currentSlideIndex].background;
+
+            const content = createSlideContent();
+            content.innerHTML = slides[currentSlideIndex].content || '';
+            canvas.appendChild(content);
+
+            // بازیابی موقعیت اشکال
+            if (slides[currentSlideIndex].shapes) {
+                slides[currentSlideIndex].shapes.forEach(shapeData => {
+                    const shape = document.createElement('div');
+                    shape.className = 'slide-shape';
+                    shape.style.cssText = shapeData.style;
+                    shape.innerHTML = shapeData.innerHTML || '';
+                    content.appendChild(shape);
+                    
+                    shape.addEventListener('mousedown', dragStart);
+                    shape.addEventListener('touchstart', dragStart);
+                });
+            }
+        }
+
+        function updateSlideBackground(color) {
+            slides[currentSlideIndex].background = color;
+            document.getElementById('currentSlide').style.backgroundColor = color;
+            document.getElementById('bgColor').value = color;
+            updateSlidePreview(currentSlideIndex);
+            saveState();
+        }
+
+        function toggleFormattingTools() {
+            const toolbar = document.getElementById('formattingToolbar');
+            toolbar.classList.toggle('show');
         }
 
         async function generatePPT() {
@@ -490,17 +935,15 @@
                 
                 for (const slide of slides) {
                     const pptSlide = pptx.addSlide();
-                    pptSlide.background = { color: slide.background };
+                    pptSlide.background = { color: slide.background.replace('#', '') };
 
                     if (slide.content.trim()) {
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = slide.content;
                         
-                        // پردازش المان‌های متنی با استایل‌های مختلف
                         const textElements = [];
                         processTextElements(tempDiv, textElements);
 
-                        // اضافه کردن هر بخش متن با استایل‌های مخصوص به خود
                         textElements.forEach((element, index) => {
                             const styles = window.getComputedStyle(element.node);
                             pptSlide.addText(element.text, {
@@ -519,15 +962,19 @@
                             });
                         });
 
-                        // اضافه کردن یادداشت‌ها
-                        if (slide.notes) {
-                            pptSlide.addNotes(slide.notes);
-                        }
-                    }
-
-                    // اعمال جلوه‌های انتقال
-                    if (slide.transition && slide.transition !== 'none') {
-                        pptSlide.transition = { name: slide.transition };
+                        // افزودن اشکال و تصاویر
+                        const shapes = tempDiv.querySelectorAll('.slide-shape');
+                        shapes.forEach(shape => {
+                            if (shape.tagName.toLowerCase() === 'img') {
+                                pptSlide.addImage({
+                                    data: shape.src,
+                                    x: shape.offsetLeft / tempDiv.offsetWidth * 100 + '%',
+                                    y: shape.offsetTop / tempDiv.offsetHeight * 100 + '%',
+                                    w: shape.offsetWidth / tempDiv.offsetWidth * 100 + '%',
+                                    h: shape.offsetHeight / tempDiv.offsetHeight * 100 + '%'
+                                });
+                            }
+                        });
                     }
                 }
 
@@ -540,67 +987,14 @@
             }
         }
 
-        function startPresentation() {
-            // ایجاد حالت نمایش تمام صفحه
-            const presentationContainer = document.createElement('div');
-            presentationContainer.style.position = 'fixed';
-            presentationContainer.style.top = '0';
-            presentationContainer.style.left = '0';
-            presentationContainer.style.width = '100vw';
-            presentationContainer.style.height = '100vh';
-            presentationContainer.style.background = 'black';
-            presentationContainer.style.zIndex = '9999';
-            
-            const slideDisplay = document.createElement('div');
-            slideDisplay.style.position = 'absolute';
-            slideDisplay.style.top = '50%';
-            slideDisplay.style.left = '50%';
-            slideDisplay.style.transform = 'translate(-50%, -50%)';
-            slideDisplay.style.width = '80%';
-            slideDisplay.style.height = '80%';
-            slideDisplay.style.background = 'white';
-            
-            presentationContainer.appendChild(slideDisplay);
-            document.body.appendChild(presentationContainer);
-            
-            let currentSlideInPresentation = 0;
-            
-            function showSlide(index) {
-                slideDisplay.innerHTML = '';
-                const slide = slides[index];
-                slideDisplay.style.background = slide.background;
-                const content = document.createElement('div');
-                content.innerHTML = slide.content;
-                content.style.padding = '2rem';
-                slideDisplay.appendChild(content);
-            }
-            
-            showSlide(currentSlideInPresentation);
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                    if (e.key === 'ArrowRight' && currentSlideInPresentation < slides.length - 1) {
-                        currentSlideInPresentation++;
-                    } else if (e.key === 'ArrowLeft' && currentSlideInPresentation > 0) {
-                        currentSlideInPresentation--;
-                    }
-                    showSlide(currentSlideInPresentation);
-                } else if (e.key === 'Escape') {
-                    document.body.removeChild(presentationContainer);
-                }
-            });
-        }
-
         function processTextElements(container, result) {
             Array.from(container.childNodes).forEach(node => {
-                if (node.nodeType === 3) { // متن ساده
-                    if (node.textContent.trim()) {
-                        result.push({
-                            text: node.textContent,
-                            node: node.parentElement || container
-                        });
-                    }
-                } else if (node.nodeType === 1) { // المان HTML
+                if (node.nodeType === 3 && node.textContent.trim()) {
+                    result.push({
+                        text: node.textContent,
+                        node: node.parentElement || container
+                    });
+                } else if (node.nodeType === 1) {
                     if (node.childNodes.length > 0) {
                         processTextElements(node, result);
                     } else if (node.textContent.trim()) {
@@ -644,38 +1038,55 @@
         }
 
         function saveState() {
-            const currentContent = document.querySelector('.slide-content');
-            if (currentContent) {
-                slides[currentSlideIndex].content = currentContent.innerHTML;
+            try {
+                const currentContent = document.querySelector('.slide-content');
+                if (currentContent) {
+                    slides[currentSlideIndex].content = currentContent.innerHTML;
+                    
+                    // ذخیره اطلاعات اشکال
+                    const shapes = currentContent.querySelectorAll('.slide-shape');
+                    slides[currentSlideIndex].shapes = Array.from(shapes).map(shape => ({
+                        style: shape.style.cssText,
+                        innerHTML: shape.innerHTML,
+                        isImage: shape.tagName.toLowerCase() === 'img'
+                    }));
+                }
+                
+                localStorage.setItem('slides', JSON.stringify(slides));
+                localStorage.setItem('currentSlideIndex', currentSlideIndex);
+            } catch (error) {
+                console.error('Error saving state:', error);
             }
-            
-            const notes = document.querySelector('.slide-notes');
-            if (notes) {
-                slides[currentSlideIndex].notes = notes.innerHTML;
-            }
-            
-            localStorage.setItem('slides', JSON.stringify(slides));
-            localStorage.setItem('currentSlideIndex', currentSlideIndex);
         }
 
         function loadState() {
-            const savedSlides = localStorage.getItem('slides');
-            const savedIndex = localStorage.getItem('currentSlideIndex');
-            
-            if (savedSlides) {
-                slides = JSON.parse(savedSlides);
-                currentSlideIndex = parseInt(savedIndex) || 0;
-                updateSlidesList();
-                renderCurrentSlide();
-            } else {
+            try {
+                const savedSlides = localStorage.getItem('slides');
+                const savedIndex = localStorage.getItem('currentSlideIndex');
+                
+                if (savedSlides) {
+                    slides = JSON.parse(savedSlides);
+                    currentSlideIndex = parseInt(savedIndex) || 0;
+                    updateSlidesList();
+                    renderCurrentSlide();
+                } else {
+                    addNewSlide();
+                }
+            } catch (error) {
+                console.error('Error loading state:', error);
                 addNewSlide();
             }
         }
 
-        // اضافه کردن توابع اصلی قبلی (addNewSlide، deleteCurrentSlide، و غیره)
-        // [کد توابع قبلی را حفظ کنید]
-
+        // راه‌اندازی اولیه برنامه
         window.addEventListener('load', loadState);
+        
+        // مدیریت تغییر اندازه صفحه
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                document.getElementById('formattingToolbar').classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
