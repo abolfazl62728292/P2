@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>پاورپوینت آنلاین | PowerPoint Web</title>
+    <!-- فونت‌آیکون‌ها -->
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- فونت وزیر -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -77,6 +79,11 @@
             justify-content: center;
             color: var(--primary-color);
             font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-toggle:active {
+            transform: translateY(-50%) scale(0.95);
         }
 
         .tool-button {
@@ -196,6 +203,8 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
+            min-width: 50px;
+            min-height: 50px;
         }
 
         .slide-element[contenteditable="true"] {
@@ -210,6 +219,7 @@
         .slide-element[contenteditable="true"]:focus {
             border: 2px solid var(--primary-color);
             outline: none;
+            background: rgba(255,255,255,0.9);
         }
 
         /* دستگیره‌های تغییر اندازه */
@@ -220,33 +230,17 @@
             background: var(--primary-color);
             border: 2px solid white;
             border-radius: 50%;
+            opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        /* نوتیفیکیشن */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px var(--shadow-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1001;
-            animation: slideIn 0.3s ease;
-        }
+        .resize-handle.nw { top: -10px; left: -10px; cursor: nw-resize; }
+        .resize-handle.ne { top: -10px; right: -10px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -10px; left: -10px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -10px; right: -10px; cursor: se-resize; }
 
-        .notification.success {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .notification.error {
-            background: var(--danger-color);
-            color: white;
+        .slide-element:hover .resize-handle {
+            opacity: 1;
         }
 
         /* دکمه تمام صفحه */
@@ -272,6 +266,33 @@
 
         .fullscreen-toggle:active {
             transform: scale(0.95);
+        }
+
+        /* نوتیفیکیشن */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            pointer-events: none;
+        }
+
+        .notification.success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+            color: white;
         }
 
         @keyframes slideIn {
@@ -321,34 +342,34 @@
 <body>
     <div class="main-content">
         <div class="floating-toolbar" id="toolbar">
-            <button class="toolbar-toggle" id="toolbarToggle">
+            <button class="toolbar-toggle" onclick="presentation.toggleToolbar()">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="tool-button" id="newSlide" data-tooltip="اسلاید جدید">
+            <button class="tool-button" onclick="presentation.addNewSlide()">
                 <i class="fas fa-plus"></i>
                 <span class="tool-tooltip">اسلاید جدید</span>
             </button>
-            <button class="tool-button" id="addText" data-tooltip="افزودن متن">
+            <button class="tool-button" onclick="presentation.addTextElement()">
                 <i class="fas fa-font"></i>
                 <span class="tool-tooltip">افزودن متن</span>
             </button>
-            <button class="tool-button" id="addImage" data-tooltip="افزودن تصویر">
+            <button class="tool-button" onclick="presentation.addImageElement()">
                 <i class="fas fa-image"></i>
                 <span class="tool-tooltip">افزودن تصویر</span>
             </button>
-            <button class="tool-button" id="addShape" data-tooltip="افزودن شکل">
+            <button class="tool-button" onclick="presentation.addShapeElement()">
                 <i class="fas fa-shapes"></i>
                 <span class="tool-tooltip">افزودن شکل</span>
             </button>
-            <button class="tool-button" id="deleteElement" data-tooltip="حذف">
+            <button class="tool-button" onclick="presentation.deleteSelectedElement()">
                 <i class="fas fa-trash"></i>
                 <span class="tool-tooltip">حذف</span>
             </button>
-            <button class="tool-button" id="savePresentation" data-tooltip="ذخیره">
+            <button class="tool-button" onclick="presentation.savePresentation()">
                 <i class="fas fa-save"></i>
                 <span class="tool-tooltip">ذخیره</span>
             </button>
-            <button class="tool-button" id="downloadPPT" data-tooltip="دانلود">
+            <button class="tool-button" onclick="presentation.exportToPPTX()">
                 <i class="fas fa-download"></i>
                 <span class="tool-tooltip">دانلود</span>
             </button>
@@ -365,14 +386,16 @@
         </div>
     </div>
 
-    <button class="fullscreen-toggle" id="fullscreenToggle">
+    <button class="fullscreen-toggle" onclick="presentation.toggleFullscreen()">
         <i class="fas fa-expand"></i>
     </button>
 
+    <!-- کتابخانه‌های مورد نیاز -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <script>
-    class Presentation {
+        class Presentation {
     constructor() {
         this.slides = [];
         this.currentSlideIndex = 0;
@@ -396,48 +419,18 @@
     }
 
     setupEventListeners() {
-        // تنظیم دکمه‌های اصلی
-        document.getElementById('newSlide').addEventListener('click', () => this.addNewSlide());
-        document.getElementById('addText').addEventListener('click', () => this.addElement('text', 'متن جدید'));
-        document.getElementById('addImage').addEventListener('click', () => this.handleImageUpload());
-        document.getElementById('addShape').addEventListener('click', () => this.handleShapeAdd());
-        document.getElementById('deleteElement').addEventListener('click', () => this.deleteSelectedElement());
-        document.getElementById('savePresentation').addEventListener('click', () => this.savePresentation());
-        document.getElementById('downloadPPT').addEventListener('click', () => this.exportToPPTX());
-
-        // تنظیم دکمه منوی شناور
-        const toolbar = document.getElementById('toolbar');
-        document.getElementById('toolbarToggle').addEventListener('click', () => {
-            toolbar.classList.toggle('collapsed');
-            const icon = toolbar.querySelector('.toolbar-toggle i');
-            icon.classList.toggle('fa-chevron-left');
-            icon.classList.toggle('fa-chevron-right');
-        });
-
-        // تنظیم دکمه تمام صفحه
-        const fullscreenBtn = document.getElementById('fullscreenToggle');
-        fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
-
-        // رویداد تغییر وضعیت تمام صفحه
-        document.addEventListener('fullscreenchange', () => {
-            this.isFullscreen = !!document.fullscreenElement;
-            const icon = fullscreenBtn.querySelector('i');
-            icon.classList.toggle('fa-expand', !this.isFullscreen);
-            icon.classList.toggle('fa-compress', this.isFullscreen);
-        });
-
-        // کلیدهای میانبر
+        // رویدادهای کیبورد
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'F11' || (e.altKey && e.key === 'f')) {
-                e.preventDefault();
-                this.toggleFullscreen();
+            if (e.key === 'Delete' && this.selectedElement) {
+                this.deleteSelectedElement();
             }
             if (e.altKey && e.key === 's') {
                 e.preventDefault();
                 this.savePresentation();
             }
-            if (e.key === 'Delete' && this.selectedElement) {
-                this.deleteSelectedElement();
+            if (e.key === 'F11' || (e.altKey && e.key === 'f')) {
+                e.preventDefault();
+                this.toggleFullscreen();
             }
         });
 
@@ -447,6 +440,22 @@
                 e.preventDefault();
             }
         }, { passive: false });
+
+        // رویداد تغییر وضعیت تمام صفحه
+        document.addEventListener('fullscreenchange', () => {
+            this.isFullscreen = !!document.fullscreenElement;
+            const icon = document.querySelector('.fullscreen-toggle i');
+            icon.classList.toggle('fa-expand', !this.isFullscreen);
+            icon.classList.toggle('fa-compress', this.isFullscreen);
+        });
+    }
+
+    toggleToolbar() {
+        const toolbar = document.getElementById('toolbar');
+        toolbar.classList.toggle('collapsed');
+        const icon = toolbar.querySelector('.toolbar-toggle i');
+        icon.classList.toggle('fa-chevron-left');
+        icon.classList.toggle('fa-chevron-right');
     }
 
     toggleFullscreen() {
@@ -459,7 +468,23 @@
         }
     }
 
-    handleImageUpload() {
+    addNewSlide() {
+        this.slides.push({
+            id: Date.now(),
+            elements: [],
+            background: '#ffffff'
+        });
+        this.currentSlideIndex = this.slides.length - 1;
+        this.saveToCookie();
+        this.render();
+        this.showNotification('اسلاید جدید اضافه شد');
+    }
+
+    addTextElement() {
+        this.addElement('text', 'متن جدید');
+    }
+
+    addImageElement() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -481,14 +506,14 @@
         input.click();
     }
 
-    handleShapeAdd() {
+    addShapeElement() {
         const shapes = ['rectangle', 'circle', 'triangle'];
         const shape = shapes[Math.floor(Math.random() * shapes.length)];
         this.addElement('shape', shape);
         this.showNotification('شکل اضافه شد');
     }
 
-    addElement(type, content = '') {
+    addElement(type, content) {
         const slide = this.slides[this.currentSlideIndex];
         const element = {
             id: Date.now(),
@@ -515,7 +540,6 @@
         slide.elements.push(element);
         this.render();
         this.saveToCookie();
-        this.showNotification(`${type === 'text' ? 'متن' : type === 'image' ? 'تصویر' : 'شکل'} جدید اضافه شد`);
     }
 
     deleteSelectedElement() {
@@ -545,6 +569,60 @@
         }, 3000);
     }
 
+    savePresentation() {
+        this.saveToCookie();
+        this.showNotification('پرزنتیشن با موفقیت ذخیره شد');
+    }
+
+    async exportToPPTX() {
+        try {
+            this.showNotification('در حال آماده‌سازی فایل...');
+            const zip = new JSZip();
+            
+            // ایجاد تصویر از اسلایدها
+            const slidePromises = this.slides.map(async (slide, index) => {
+                const slideElement = document.getElementById('currentSlide').cloneNode(true);
+                slideElement.style.position = 'fixed';
+                slideElement.style.left = '-9999px';
+                document.body.appendChild(slideElement);
+                
+                try {
+                    const canvas = await html2canvas(slideElement);
+                    document.body.removeChild(slideElement);
+                    return canvas.toDataURL('image/png');
+                } catch (error) {
+                    document.body.removeChild(slideElement);
+                    throw error;
+                }
+            });
+
+            const slideImages = await Promise.all(slidePromises);
+            
+            // ایجاد فایل
+            zip.file("slides.json", JSON.stringify({
+                slides: slideImages.map((image, index) => ({
+                    id: index + 1,
+                    image: image
+                }))
+            }));
+
+            const content = await zip.generateAsync({type: "blob"});
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'presentation.pptx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            this.showNotification('فایل با موفقیت دانلود شد');
+        } catch (error) {
+            console.error('Error exporting:', error);
+            this.showNotification('خطا در دانلود فایل', 'error');
+        }
+    }
+
     saveToCookie() {
         const data = {
             slides: this.slides,
@@ -555,11 +633,6 @@
         document.cookie = `presentation=${JSON.stringify(data)}; expires=${expires}; path=/`;
     }
 
-    savePresentation() {
-        this.saveToCookie();
-        this.showNotification('پرزنتیشن با موفقیت ذخیره شد');
-    }
-
     loadFromCookie() {
         const cookie = document.cookie.split(';').find(c => c.trim().startsWith('presentation='));
         if (cookie) {
@@ -568,169 +641,12 @@
         return null;
     }
 
-    makeDraggable(element) {
-        let pos = { x: 0, y: 0 };
-        let isDragging = false;
-        let isResizing = false;
-        let currentHandle = null;
-
-        // اضافه کردن دستگیره‌های تغییر اندازه
-        ['nw', 'ne', 'sw', 'se'].forEach(position => {
-            const handle = document.createElement('div');
-            handle.className = `resize-handle ${position}`;
-            element.appendChild(handle);
-
-            const startResize = (e) => {
-                e.stopPropagation();
-                isResizing = true;
-                currentHandle = position;
-                const touch = e.type === 'touchstart' ? e.touches[0] : e;
-                const rect = element.getBoundingClientRect();
-                
-                pos = {
-                    x: touch.clientX,
-                    y: touch.clientY,
-                    width: rect.width,
-                    height: rect.height,
-                    left: rect.left,
-                    top: rect.top
-                };
-
-                document.addEventListener('mousemove', resize);
-                document.addEventListener('touchmove', resize);
-                document.addEventListener('mouseup', stopResize);
-                document.addEventListener('touchend', stopResize);
-            };
-
-            handle.addEventListener('mousedown', startResize);
-            handle.addEventListener('touchstart', startResize);
-        });
-
-        const resize = (e) => {
-            if (!isResizing) return;
-            e.preventDefault();
-
-            const touch = e.type === 'touchmove' ? e.touches[0] : e;
-            const dx = touch.clientX - pos.x;
-            const dy = touch.clientY - pos.y;
-
-            let newWidth = pos.width;
-            let newHeight = pos.height;
-            let newLeft = pos.left;
-            let newTop = pos.top;
-
-            if (currentHandle.includes('e')) {
-                newWidth = Math.max(50, pos.width + dx);
-            }
-            if (currentHandle.includes('w')) {
-                const w = Math.max(50, pos.width - dx);
-                newLeft = pos.left + (pos.width - w);
-                newWidth = w;
-            }
-            if (currentHandle.includes('s')) {
-                newHeight = Math.max(50, pos.height + dy);
-            }
-            if (currentHandle.includes('n')) {
-                const h = Math.max(50, pos.height - dy);
-                newTop = pos.top + (pos.height - h);
-                newHeight = h;
-            }
-
-            element.style.width = `${newWidth}px`;
-            element.style.height = `${newHeight}px`;
-            element.style.left = `${newLeft - element.parentElement.offsetLeft}px`;
-            element.style.top = `${newTop - element.parentElement.offsetTop}px`;
-        };
-
-        const stopResize = () => {
-            isResizing = false;
-            currentHandle = null;
-            document.removeEventListener('mousemove', resize);
-            document.removeEventListener('touchmove', resize);
-            document.removeEventListener('mouseup', stopResize);
-            document.removeEventListener('touchend', stopResize);
-            
-            // ذخیره تغییرات
-            this.updateElementPosition(element);
-        };
-
-        const startDragging = (e) => {
-            if (e.target.classList.contains('resize-handle')) return;
-            if (e.target.tagName === 'BUTTON') return;
-            
-            isDragging = true;
-            this.selectedElement = element;
-            
-            const touch = e.type === 'touchstart' ? e.touches[0] : e;
-            pos = {
-                x: touch.clientX - element.offsetLeft,
-                y: touch.clientY - element.offsetTop
-            };
-
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag);
-            document.addEventListener('mouseup', stopDragging);
-            document.addEventListener('touchend', stopDragging);
-        };
-
-        const drag = (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-
-            const touch = e.type === 'touchmove' ? e.touches[0] : e;
-            const newLeft = touch.clientX - pos.x;
-            const newTop = touch.clientY - pos.y;
-
-            const slide = element.parentElement;
-            const maxX = slide.offsetWidth - element.offsetWidth;
-            const maxY = slide.offsetHeight - element.offsetHeight;
-
-            element.style.left = `${Math.max(0, Math.min(maxX, newLeft))}px`;
-            element.style.top = `${Math.max(0, Math.min(maxY, newTop))}px`;
-        };
-
-        const stopDragging = () => {
-            isDragging = false;
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('touchmove', drag);
-            document.removeEventListener('mouseup', stopDragging);
-            document.removeEventListener('touchend', stopDragging);
-            
-            // ذخیره تغییرات
-            this.updateElementPosition(element);
-        };
-
-        element.addEventListener('mousedown', startDragging);
-        element.addEventListener('touchstart', startDragging);
-    }
-
-    updateElementPosition(element) {
-        const slide = this.slides[this.currentSlideIndex];
-        const elementId = parseInt(element.dataset.id);
-        const elementData = slide.elements.find(el => el.id === elementId);
-        if (elementData) {
-            elementData.position = {
-                x: parseInt(element.style.left),
-                y: parseInt(element.style.top)
-            };
-            elementData.style = {
-                ...elementData.style,
-                width: element.style.width,
-                height: element.style.height
-            };
-            this.saveToCookie();
-        }
-    }
-
     render() {
         // رندر پنل اسلایدها
         const slidesPanel = document.getElementById('slidesPanel');
         slidesPanel.innerHTML = this.slides.map((slide, index) => `
             <div class="slide-thumbnail ${index === this.currentSlideIndex ? 'active' : ''}"
                  onclick="presentation.setCurrentSlide(${index})">
-                <div class="slide-preview">
-                    ${this.renderSlidePreview(slide)}
-                </div>
                 <div class="slide-number">اسلاید ${index + 1}</div>
             </div>
         `).join('');
@@ -744,13 +660,13 @@
                 let elementHtml = '';
                 switch(element.type) {
                     case 'text':
-                        elementHtml = this.createTextElement(element);
+                        elementHtml = `<div contenteditable="true">${element.content}</div>`;
                         break;
                     case 'image':
-                        elementHtml = this.createImageElement(element);
+                        elementHtml = `<img src="${element.content}" style="max-width: 100%; max-height: 100%;">`;
                         break;
                     case 'shape':
-                        elementHtml = this.createShapeElement(element);
+                        elementHtml = this.createShapeHtml(element.content);
                         break;
                 }
 
@@ -760,38 +676,203 @@
                          style="left: ${element.position.x}px;
                                 top: ${element.position.y}px;
                                 z-index: ${element.zIndex};
-                                ${this.createElementStyle(element.style)}">
+                                ${Object.entries(element.style).map(([key, value]) => 
+                                    `${this.camelToKebab(key)}: ${value}`).join(';')}">
                         ${elementHtml}
+                        <div class="resize-handle nw"></div>
+                        <div class="resize-handle ne"></div>
+                        <div class="resize-handle sw"></div>
+                        <div class="resize-handle se"></div>
                     </div>
                 `;
             }).join('');
 
+            // اضافه کردن قابلیت drag & drop به المان‌ها
             const elements = currentSlide.getElementsByClassName('slide-element');
             Array.from(elements).forEach(element => {
                 this.makeDraggable(element);
-                if (element.querySelector('[contenteditable]')) {
-                    this.setupTextEditingEvents(element);
-                }
+                this.makeResizable(element);
             });
         }
     }
 
-    createElementStyle(style) {
-        return Object.entries(style)
-            .map(([key, value]) => `${this.camelToKebab(key)}: ${value}`)
-            .join(';');
+    createShapeHtml(shapeType) {
+        switch(shapeType) {
+            case 'rectangle':
+                return `<div style="width: 100px; height: 60px; background: var(--primary-color);"></div>`;
+            case 'circle':
+                return `<div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%;"></div>`;
+            case 'triangle':
+                return `<div style="width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 80px solid var(--primary-color);"></div>`;
+            default:
+                return '';
+        }
+    }
+
+    setCurrentSlide(index) {
+        this.currentSlideIndex = index;
+        this.render();
+        this.showNotification(`اسلاید ${index + 1} انتخاب شد`);
+    }
+
+    makeDraggable(element) {
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+
+        const dragStart = (e) => {
+            if (e.target.classList.contains('resize-handle')) return;
+            
+            const touch = e.type === 'touchstart' ? e.touches[0] : e;
+            initialX = touch.clientX - element.offsetLeft;
+            initialY = touch.clientY - element.offsetTop;
+            
+            this.selectedElement = element;
+            isDragging = true;
+            
+            element.style.cursor = 'move';
+        };
+
+        const drag = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const touch = e.type === 'touchmove' ? e.touches[0] : e;
+            currentX = touch.clientX - initialX;
+            currentY = touch.clientY - initialY;
+
+            // محدود کردن به داخل اسلاید
+            const slide = element.parentElement;
+            const maxX = slide.offsetWidth - element.offsetWidth;
+            const maxY = slide.offsetHeight - element.offsetHeight;
+
+            currentX = Math.max(0, Math.min(maxX, currentX));
+            currentY = Math.max(0, Math.min(maxY, currentY));
+
+            element.style.left = `${currentX}px`;
+            element.style.top = `${currentY}px`;
+        };
+
+        const dragEnd = () => {
+            isDragging = false;
+            element.style.cursor = 'default';
+            
+            // به‌روزرسانی موقعیت در دیتا
+            const elementId = parseInt(element.dataset.id);
+            const slide = this.slides[this.currentSlideIndex];
+            const elementData = slide.elements.find(el => el.id === elementId);
+            if (elementData) {
+                elementData.position = {
+                    x: parseInt(element.style.left),
+                    y: parseInt(element.style.top)
+                };
+                this.saveToCookie();
+            }
+        };
+
+        element.addEventListener('mousedown', dragStart);
+        element.addEventListener('touchstart', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchend', dragEnd);
+    }
+
+    makeResizable(element) {
+        const handles = element.querySelectorAll('.resize-handle');
+        handles.forEach(handle => {
+            let isResizing = false;
+            let originalWidth;
+            let originalHeight;
+            let originalX;
+            let originalY;
+            let startX;
+            let startY;
+
+            const startResize = (e) => {
+                isResizing = true;
+                e.stopPropagation();
+
+                const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                originalWidth = element.offsetWidth;
+                originalHeight = element.offsetHeight;
+                originalX = element.offsetLeft;
+                originalY = element.offsetTop;
+
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('touchmove', resize);
+                document.addEventListener('mouseup', stopResize);
+                document.addEventListener('touchend', stopResize);
+            };
+
+            const resize = (e) => {
+                if (!isResizing) return;
+                e.preventDefault();
+
+                const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+
+                if (handle.classList.contains('se')) {
+                    element.style.width = `${originalWidth + dx}px`;
+                    element.style.height = `${originalHeight + dy}px`;
+                } else if (handle.classList.contains('sw')) {
+                    element.style.width = `${originalWidth - dx}px`;
+                    element.style.height = `${originalHeight + dy}px`;
+                    element.style.left = `${originalX + dx}px`;
+                } else if (handle.classList.contains('ne')) {
+                    element.style.width = `${originalWidth + dx}px`;
+                    element.style.height = `${originalHeight - dy}px`;
+                    element.style.top = `${originalY + dy}px`;
+                } else if (handle.classList.contains('nw')) {
+                    element.style.width = `${originalWidth - dx}px`;
+                    element.style.height = `${originalHeight - dy}px`;
+                    element.style.top = `${originalY + dy}px`;
+                    element.style.left = `${originalX + dx}px`;
+                }
+            };
+
+            const stopResize = () => {
+                isResizing = false;
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('touchmove', resize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchend', stopResize);
+                
+                // به‌روزرسانی سایز در دیتا
+                const elementId = parseInt(element.dataset.id);
+                const slide = this.slides[this.currentSlideIndex];
+                const elementData = slide.elements.find(el => el.id === elementId);
+                if (elementData) {
+                    elementData.style = {
+                        ...elementData.style,
+                        width: element.style.width,
+                        height: element.style.height
+                    };
+                    elementData.position = {
+                        x: parseInt(element.style.left),
+                        y: parseInt(element.style.top)
+                    };
+                    this.saveToCookie();
+                }
+            };
+
+            handle.addEventListener('mousedown', startResize);
+            handle.addEventListener('touchstart', startResize);
+        });
     }
 
     camelToKebab(string) {
         return string.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
     }
-
-    // ... (بقیه متدها مثل createTextElement، createImageElement و غیره)
 }
 
 // ایجاد نمونه از کلاس
 const presentation = new Presentation();
-</script>
+    </script>
 </body>
 </html>
-    
