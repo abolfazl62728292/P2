@@ -2,877 +2,644 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>پاورپوینت آنلاین | PowerPoint Web</title>
-    <!-- فونت‌آیکون‌ها -->
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- فونت وزیر -->
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساخت آنلاین پاورپوینت</title>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&family=Lalezar&family=Yekan&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2b579a;
-            --secondary-color: #4472c4;
-            --background-color: #f5f5f5;
-            --text-color: #333;
-            --border-color: #ddd;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --toolbar-width: 60px;
-            --button-size: 50px;
+            --primary: #2563eb;
+            --primary-light: #60a5fa;
+            --danger: #dc2626;
+            --success: #059669;
+            --bg: #f3f4f6;
+            --border: #e2e8f0;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Vazirmatn', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
         }
 
         body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            background: var(--bg);
+            color: #334155;
+            line-height: 1.7;
+            height: 100vh;
             overflow: hidden;
-            background: var(--background-color);
-            color: var(--text-color);
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* منوی شناور */
-        .floating-toolbar {
-            position: fixed;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            padding: 10px 5px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            transition: transform 0.3s ease;
         }
 
-        .floating-toolbar.collapsed {
-            transform: translateX(calc(100% + 10px)) translateY(-50%);
-        }
-
-        .toolbar-toggle {
-            position: absolute;
-            left: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            background: white;
-            border: none;
-            border-radius: 10px 0 0 10px;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-            cursor: pointer;
+        .main-toolbar {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
+            gap: 1rem;
             align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 20px;
-            transition: all 0.3s ease;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .toolbar-toggle:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-
-        .tool-button {
-            width: var(--button-size);
-            height: var(--button-size);
-            border: none;
-            border-radius: 12px;
-            background: white;
-            color: var(--primary-color);
-            font-size: 20px;
-            cursor: pointer;
+        .toolbar-group {
             display: flex;
+            gap: 0.5rem;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            position: relative;
+            padding: 0 0.5rem;
+            border-right: 1px solid var(--border);
         }
 
-        .tool-button:active {
-            transform: scale(0.95);
-            background: var(--primary-color);
-            color: white;
+        .toolbar-group:last-child {
+            border-right: none;
         }
 
-        .tool-button.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .tool-tooltip {
-            position: absolute;
-            right: calc(100% + 10px);
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .tool-button:hover .tool-tooltip {
-            opacity: 1;
-        }
-
-        /* منطقه اصلی */
         .main-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            position: relative;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            overflow: hidden;
         }
 
-        .slides-panel {
-            width: 200px;
-            height: 100%;
+        .slide-list {
             background: white;
-            border-left: 1px solid var(--border-color);
+            border-left: 1px solid var(--border);
+            padding: 1rem;
             overflow-y: auto;
-            padding: 10px;
-            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .slides-panel.collapsed {
-            transform: translateX(100%);
+        .slide-preview {
+            position: relative;
+            width: 180px;
+            aspect-ratio: 16/9;
+            margin: 0.5rem 0;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slide-preview:hover {
+            border-color: var(--primary-light);
+        }
+
+        .slide-preview.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .slide-preview .slide-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .slide-preview:hover .delete-btn {
+            display: flex;
         }
 
         .slide-workspace {
-            flex: 1;
-            background: var(--background-color);
-            overflow: auto;
+            padding: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-        }
-
-        .active-slide {
-            background: white;
-            box-shadow: 0 0 20px var(--shadow-color);
-            width: 960px;
-            height: 540px;
-            position: relative;
-            border-radius: 8px;
+            background: var(--bg);
             overflow: hidden;
         }
 
-        /* اسلاید مینیاتوری */
-        .slide-thumbnail {
-            width: 100%;
-            padding-top: 56.25%;
+        .slide-canvas {
+            width: 90%;
+            height: 90%;
+            max-width: 1200px;
             background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            aspect-ratio: 16/9;
         }
 
-        .slide-thumbnail.active {
-            border: 2px solid var(--primary-color);
-            transform: scale(1.05);
-        }
-
-        .slide-thumbnail:active {
-            transform: scale(0.95);
-        }
-
-        /* المان‌های اسلاید */
-        .slide-element {
+        .slide-content {
             position: absolute;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-            min-width: 50px;
-            min-height: 50px;
-        }
-
-        .slide-element[contenteditable="true"] {
-            cursor: text;
-            min-width: 100px;
-            min-height: 30px;
-            padding: 10px;
-            border: 1px solid transparent;
-            border-radius: 5px;
-        }
-
-        .slide-element[contenteditable="true"]:focus {
-            border: 2px solid var(--primary-color);
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
             outline: none;
-            background: rgba(255,255,255,0.9);
+            overflow-y: auto;
+            font-family: Vazirmatn;
+            font-size: 24px;
+            line-height: 1.5;
+            background: transparent;
         }
 
-        /* دستگیره‌های تغییر اندازه */
-        .resize-handle {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: var(--primary-color);
-            border: 2px solid white;
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .slide-content:empty:before {
+            content: 'برای نوشتن کلیک کنید...';
+            color: #9ca3af;
+            font-style: italic;
         }
 
-        .resize-handle.nw { top: -10px; left: -10px; cursor: nw-resize; }
-        .resize-handle.ne { top: -10px; right: -10px; cursor: ne-resize; }
-        .resize-handle.sw { bottom: -10px; left: -10px; cursor: sw-resize; }
-        .resize-handle.se { bottom: -10px; right: -10px; cursor: se-resize; }
-
-        .slide-element:hover .resize-handle {
-            opacity: 1;
+        .slide-content:focus {
+            outline: none;
         }
 
-        /* دکمه تمام صفحه */
-        .fullscreen-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
+        ::selection {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .style-select {
+            height: 32px;
+            padding: 0 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             background: white;
-            border: none;
-            border-radius: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            min-width: 100px;
+            font-family: inherit;
+        }
+
+        .color-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .color-group input[type="color"] {
+            width: 32px;
+            height: 32px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             cursor: pointer;
+        }
+
+        .color-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: #4b5563;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-color);
-            font-size: 20px;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .fullscreen-toggle:active {
-            transform: scale(0.95);
+        .toolbar-btn:hover {
+            background: var(--bg);
         }
 
-        /* نوتیفیکیشن */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px var(--shadow-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1001;
-            animation: slideIn 0.3s ease;
-            pointer-events: none;
-        }
-
-        .notification.success {
-            background: var(--success-color);
+        .toolbar-btn.active {
+            background: var(--primary-light);
             color: white;
         }
 
-        .notification.error {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* واکنش‌گرایی */
         @media (max-width: 768px) {
-            .floating-toolbar {
-                gap: 5px;
-                padding: 5px;
+            .main-content {
+                grid-template-columns: 1fr;
             }
 
-            .tool-button {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-
-            .slides-panel {
-                width: 150px;
-            }
-        }
-
-        @media screen and (max-width: 768px) and (orientation: portrait) {
-            body:before {
-                content: "لطفاً گوشی خود را به حالت افقی بچرخانید";
+            .slide-list {
                 position: fixed;
-                top: 0;
+                bottom: 0;
                 left: 0;
                 right: 0;
-                bottom: 0;
-                background: var(--primary-color);
-                color: white;
-                display: flex;
-                align-items: center;
+                height: 30%;
+                z-index: 90;
+            }
+
+            .main-toolbar {
+                flex-wrap: wrap;
                 justify-content: center;
-                z-index: 9999;
-                padding: 20px;
-                text-align: center;
-                font-size: 1.2em;
+            }
+
+            .toolbar-group {
+                border: none;
+                padding: 0.25rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="main-toolbar">
+        <div class="toolbar-group">
+            <button class="btn btn-primary" onclick="addNewSlide()">
+                <span class="icon">+</span>
+                اسلاید جدید
+            </button>
+            <button class="btn btn-danger" onclick="deleteCurrentSlide()">
+                <span class="icon">×</span>
+                حذف اسلاید
+            </button>
+        </div>
+        
+        <div class="toolbar-group">
+            <input type="text" class="style-select font-size" placeholder="اندازه فونت" oninput="applyStyleToSelection('fontSize', this.value + 'px')" title="اندازه فونت">
+            <select class="style-select font-family" onchange="applyStyleToSelection('fontFamily', this.value)">
+                <option value="Vazirmatn">وزیر</option>
+                <option value="Lalezar">لاله‌زار</option>
+                <option value="Yekan">یکان</option>
+            </select>
+            <div class="color-group">
+                <input type="color" id="textColor" onchange="applyStyleToSelection('color', this.value)" title="رنگ متن">
+                <label for="textColor" class="color-label">رنگ متن</label>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'right')" title="راست‌چین">
+                <span class="icon">⇚</span>
+            </button>
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'center')" title="وسط‌چین">
+                <span class="icon">☰</span>
+            </button>
+            <button class="toolbar-btn" onclick="applyStyleToSelection('textAlign', 'left')" title="چپ‌چین">
+                <span class="icon">⇛</span>
+            </button>
+            <button class="toolbar-btn" onclick="toggleStyle('bold')" title="ضخیم">B</button>
+            <button class="toolbar-btn" onclick="toggleStyle('italic')" title="مورب">I</button>
+        </div>
+
+        <div class="toolbar-group">
+            <div class="color-group">
+                <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه">
+                <label for="bgColor" class="color-label">پس‌زمینه</label>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="btn btn-success" onclick="generatePPT()">
+                <span class="icon">⬇️</span>
+                دانلود
+            </button>
+        </div>
+    </div>
+
     <div class="main-content">
-        <div class="floating-toolbar" id="toolbar">
-            <button class="toolbar-toggle" onclick="presentation.toggleToolbar()">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="tool-button" onclick="presentation.addNewSlide()">
-                <i class="fas fa-plus"></i>
-                <span class="tool-tooltip">اسلاید جدید</span>
-            </button>
-            <button class="tool-button" onclick="presentation.addTextElement()">
-                <i class="fas fa-font"></i>
-                <span class="tool-tooltip">افزودن متن</span>
-            </button>
-            <button class="tool-button" onclick="presentation.addImageElement()">
-                <i class="fas fa-image"></i>
-                <span class="tool-tooltip">افزودن تصویر</span>
-            </button>
-            <button class="tool-button" onclick="presentation.addShapeElement()">
-                <i class="fas fa-shapes"></i>
-                <span class="tool-tooltip">افزودن شکل</span>
-            </button>
-            <button class="tool-button" onclick="presentation.deleteSelectedElement()">
-                <i class="fas fa-trash"></i>
-                <span class="tool-tooltip">حذف</span>
-            </button>
-            <button class="tool-button" onclick="presentation.savePresentation()">
-                <i class="fas fa-save"></i>
-                <span class="tool-tooltip">ذخیره</span>
-            </button>
-            <button class="tool-button" onclick="presentation.exportToPPTX()">
-                <i class="fas fa-download"></i>
-                <span class="tool-tooltip">دانلود</span>
-            </button>
+        <div class="slide-list" id="slideList">
+            <!-- پیش‌نمایش اسلایدها -->
         </div>
-
-        <div class="slides-panel" id="slidesPanel">
-            <!-- پنل اسلایدها -->
-        </div>
-
+        
         <div class="slide-workspace">
-            <div class="active-slide" id="currentSlide">
-                <!-- محتوای اسلاید فعال -->
+            <div class="slide-canvas" id="currentSlide">
+                <!-- محتوای اسلاید فعلی -->
             </div>
         </div>
     </div>
 
-    <button class="fullscreen-toggle" onclick="presentation.toggleFullscreen()">
-        <i class="fas fa-expand"></i>
-    </button>
-
-    <!-- کتابخانه‌های مورد نیاز -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
     <script>
-        class Presentation {
-    constructor() {
-        this.slides = [];
-        this.currentSlideIndex = 0;
-        this.nextZIndex = 1;
-        this.selectedElement = null;
-        this.isFullscreen = false;
-        this.init();
-    }
+        let slides = [];
+        let currentSlideIndex = 0;
 
-    init() {
-        const savedData = this.loadFromCookie();
-        if (savedData) {
-            this.slides = savedData.slides;
-            this.currentSlideIndex = savedData.currentSlideIndex;
-            this.nextZIndex = savedData.nextZIndex || 1;
-        } else {
-            this.addNewSlide();
-        }
-        this.setupEventListeners();
-        this.render();
-    }
+        function createSlideContent() {
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'slide-content';
+            contentDiv.contentEditable = true;
+            contentDiv.dir = 'rtl';
+            contentDiv.spellcheck = false;
 
-    setupEventListeners() {
-        // رویدادهای کیبورد
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Delete' && this.selectedElement) {
-                this.deleteSelectedElement();
-            }
-            if (e.altKey && e.key === 's') {
-                e.preventDefault();
-                this.savePresentation();
-            }
-            if (e.key === 'F11' || (e.altKey && e.key === 'f')) {
-                e.preventDefault();
-                this.toggleFullscreen();
-            }
-        });
-
-        // جلوگیری از رفتار پیش‌فرض مرورگر در موبایل
-        document.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        // رویداد تغییر وضعیت تمام صفحه
-        document.addEventListener('fullscreenchange', () => {
-            this.isFullscreen = !!document.fullscreenElement;
-            const icon = document.querySelector('.fullscreen-toggle i');
-            icon.classList.toggle('fa-expand', !this.isFullscreen);
-            icon.classList.toggle('fa-compress', this.isFullscreen);
-        });
-    }
-
-    toggleToolbar() {
-        const toolbar = document.getElementById('toolbar');
-        toolbar.classList.toggle('collapsed');
-        const icon = toolbar.querySelector('.toolbar-toggle i');
-        icon.classList.toggle('fa-chevron-left');
-        icon.classList.toggle('fa-chevron-right');
-    }
-
-    toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                this.showNotification('خطا در تمام صفحه کردن', 'error');
+            contentDiv.addEventListener('mouseup', handleTextSelection);
+            contentDiv.addEventListener('keyup', handleTextSelection);
+            contentDiv.addEventListener('input', () => {
+                saveState();
+                updateSlidePreview(currentSlideIndex);
             });
-        } else {
-            document.exitFullscreen();
-        }
-    }
-
-    addNewSlide() {
-        this.slides.push({
-            id: Date.now(),
-            elements: [],
-            background: '#ffffff'
-        });
-        this.currentSlideIndex = this.slides.length - 1;
-        this.saveToCookie();
-        this.render();
-        this.showNotification('اسلاید جدید اضافه شد');
-    }
-
-    addTextElement() {
-        this.addElement('text', 'متن جدید');
-    }
-
-    addImageElement() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    this.showNotification('حجم تصویر نباید بیشتر از 5 مگابایت باشد', 'error');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    this.addElement('image', event.target.result);
-                    this.showNotification('تصویر اضافه شد');
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-        input.click();
-    }
-
-    addShapeElement() {
-        const shapes = ['rectangle', 'circle', 'triangle'];
-        const shape = shapes[Math.floor(Math.random() * shapes.length)];
-        this.addElement('shape', shape);
-        this.showNotification('شکل اضافه شد');
-    }
-
-    addElement(type, content) {
-        const slide = this.slides[this.currentSlideIndex];
-        const element = {
-            id: Date.now(),
-            type,
-            content,
-            position: { x: 50, y: 50 },
-            style: {},
-            zIndex: this.nextZIndex++
-        };
-
-        if (type === 'text') {
-            element.style = {
-                fontSize: '16px',
-                color: '#000000',
-                fontFamily: 'Vazirmatn',
-                padding: '10px',
-                minWidth: '100px',
-                minHeight: '30px',
-                background: 'rgba(255,255,255,0.8)',
-                borderRadius: '5px'
-            };
-        }
-
-        slide.elements.push(element);
-        this.render();
-        this.saveToCookie();
-    }
-
-    deleteSelectedElement() {
-        if (this.selectedElement) {
-            const elementId = parseInt(this.selectedElement.dataset.id);
-            const slide = this.slides[this.currentSlideIndex];
-            slide.elements = slide.elements.filter(el => el.id !== elementId);
-            this.selectedElement = null;
-            this.render();
-            this.saveToCookie();
-            this.showNotification('المان حذف شد');
-        }
-    }
-
-    showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    savePresentation() {
-        this.saveToCookie();
-        this.showNotification('پرزنتیشن با موفقیت ذخیره شد');
-    }
-
-    async exportToPPTX() {
-        try {
-            this.showNotification('در حال آماده‌سازی فایل...');
-            const zip = new JSZip();
             
-            // ایجاد تصویر از اسلایدها
-            const slidePromises = this.slides.map(async (slide, index) => {
-                const slideElement = document.getElementById('currentSlide').cloneNode(true);
-                slideElement.style.position = 'fixed';
-                slideElement.style.left = '-9999px';
-                document.body.appendChild(slideElement);
+            return contentDiv;
+        }
+
+        function handleTextSelection() {
+            const selection = window.getSelection();
+            if (selection && selection.toString()) {
+                updateToolbarWithSelection(selection);
+            }
+        }
+
+        function updateToolbarWithSelection(selection) {
+            try {
+                const range = selection.getRangeAt(0);
+                const container = range.commonAncestorContainer;
+                const computedStyle = window.getComputedStyle(
+                    container.nodeType === 3 ? container.parentNode : container
+                );
+
+                // به‌روزرسانی وضعیت نوار ابزار
+                document.querySelector('.font-family').value = 
+                    computedStyle.fontFamily.split(',')[0].replace(/['\"]+/g, '') || 'Vazirmatn';
+                document.querySelector('.font-size').value = 
+                    parseInt(computedStyle.fontSize) || '24';
+                document.querySelector('#textColor').value = 
+                    rgbToHex(computedStyle.color);
+
+                // به‌روزرسانی دکمه‌های فرمت
+                document.querySelector('[onclick="toggleStyle(\'bold\')"]')
+                    .classList.toggle('active', computedStyle.fontWeight >= 700);
+                document.querySelector('[onclick="toggleStyle(\'italic\')"]')
+                    .classList.toggle('active', computedStyle.fontStyle === 'italic');
+            } catch (error) {
+                console.log('Selection update error:', error);
+            }
+        }
+
+        function applyStyleToSelection(property, value) {
+            const selection = window.getSelection();
+            if (!selection.toString()) return;
+
+            try {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style[property] = value;
                 
-                try {
-                    const canvas = await html2canvas(slideElement);
-                    document.body.removeChild(slideElement);
-                    return canvas.toDataURL('image/png');
-                } catch (error) {
-                    document.body.removeChild(slideElement);
-                    throw error;
+                if (range.commonAncestorContainer.nodeType === 3) {
+                    range.surroundContents(span);
+                } else {
+                    const text = range.extractContents();
+                    span.appendChild(text);
+                    range.insertNode(span);
                 }
-            });
-
-            const slideImages = await Promise.all(slidePromises);
-            
-            // ایجاد فایل
-            zip.file("slides.json", JSON.stringify({
-                slides: slideImages.map((image, index) => ({
-                    id: index + 1,
-                    image: image
-                }))
-            }));
-
-            const content = await zip.generateAsync({type: "blob"});
-            const url = URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'presentation.pptx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            this.showNotification('فایل با موفقیت دانلود شد');
-        } catch (error) {
-            console.error('Error exporting:', error);
-            this.showNotification('خطا در دانلود فایل', 'error');
-        }
-    }
-
-    saveToCookie() {
-        const data = {
-            slides: this.slides,
-            currentSlideIndex: this.currentSlideIndex,
-            nextZIndex: this.nextZIndex
-        };
-        const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-        document.cookie = `presentation=${JSON.stringify(data)}; expires=${expires}; path=/`;
-    }
-
-    loadFromCookie() {
-        const cookie = document.cookie.split(';').find(c => c.trim().startsWith('presentation='));
-        if (cookie) {
-            return JSON.parse(cookie.split('=')[1]);
-        }
-        return null;
-    }
-
-    render() {
-        // رندر پنل اسلایدها
-        const slidesPanel = document.getElementById('slidesPanel');
-        slidesPanel.innerHTML = this.slides.map((slide, index) => `
-            <div class="slide-thumbnail ${index === this.currentSlideIndex ? 'active' : ''}"
-                 onclick="presentation.setCurrentSlide(${index})">
-                <div class="slide-number">اسلاید ${index + 1}</div>
-            </div>
-        `).join('');
-
-        // رندر اسلاید فعال
-        const currentSlide = document.getElementById('currentSlide');
-        const slide = this.slides[this.currentSlideIndex];
-        
-        if (slide) {
-            currentSlide.innerHTML = slide.elements.map(element => {
-                let elementHtml = '';
-                switch(element.type) {
-                    case 'text':
-                        elementHtml = `<div contenteditable="true">${element.content}</div>`;
-                        break;
-                    case 'image':
-                        elementHtml = `<img src="${element.content}" style="max-width: 100%; max-height: 100%;">`;
-                        break;
-                    case 'shape':
-                        elementHtml = this.createShapeHtml(element.content);
-                        break;
-                }
-
-                return `
-                    <div class="slide-element" 
-                         data-id="${element.id}"
-                         style="left: ${element.position.x}px;
-                                top: ${element.position.y}px;
-                                z-index: ${element.zIndex};
-                                ${Object.entries(element.style).map(([key, value]) => 
-                                    `${this.camelToKebab(key)}: ${value}`).join(';')}">
-                        ${elementHtml}
-                        <div class="resize-handle nw"></div>
-                        <div class="resize-handle ne"></div>
-                        <div class="resize-handle sw"></div>
-                        <div class="resize-handle se"></div>
-                    </div>
-                `;
-            }).join('');
-
-            // اضافه کردن قابلیت drag & drop به المان‌ها
-            const elements = currentSlide.getElementsByClassName('slide-element');
-            Array.from(elements).forEach(element => {
-                this.makeDraggable(element);
-                this.makeResizable(element);
-            });
-        }
-    }
-
-    createShapeHtml(shapeType) {
-        switch(shapeType) {
-            case 'rectangle':
-                return `<div style="width: 100px; height: 60px; background: var(--primary-color);"></div>`;
-            case 'circle':
-                return `<div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%;"></div>`;
-            case 'triangle':
-                return `<div style="width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 80px solid var(--primary-color);"></div>`;
-            default:
-                return '';
-        }
-    }
-
-    setCurrentSlide(index) {
-        this.currentSlideIndex = index;
-        this.render();
-        this.showNotification(`اسلاید ${index + 1} انتخاب شد`);
-    }
-
-    makeDraggable(element) {
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-
-        const dragStart = (e) => {
-            if (e.target.classList.contains('resize-handle')) return;
-            
-            const touch = e.type === 'touchstart' ? e.touches[0] : e;
-            initialX = touch.clientX - element.offsetLeft;
-            initialY = touch.clientY - element.offsetTop;
-            
-            this.selectedElement = element;
-            isDragging = true;
-            
-            element.style.cursor = 'move';
-        };
-
-        const drag = (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-
-            const touch = e.type === 'touchmove' ? e.touches[0] : e;
-            currentX = touch.clientX - initialX;
-            currentY = touch.clientY - initialY;
-
-            // محدود کردن به داخل اسلاید
-            const slide = element.parentElement;
-            const maxX = slide.offsetWidth - element.offsetWidth;
-            const maxY = slide.offsetHeight - element.offsetHeight;
-
-            currentX = Math.max(0, Math.min(maxX, currentX));
-            currentY = Math.max(0, Math.min(maxY, currentY));
-
-            element.style.left = `${currentX}px`;
-            element.style.top = `${currentY}px`;
-        };
-
-        const dragEnd = () => {
-            isDragging = false;
-            element.style.cursor = 'default';
-            
-            // به‌روزرسانی موقعیت در دیتا
-            const elementId = parseInt(element.dataset.id);
-            const slide = this.slides[this.currentSlideIndex];
-            const elementData = slide.elements.find(el => el.id === elementId);
-            if (elementData) {
-                elementData.position = {
-                    x: parseInt(element.style.left),
-                    y: parseInt(element.style.top)
-                };
-                this.saveToCookie();
-            }
-        };
-
-        element.addEventListener('mousedown', dragStart);
-        element.addEventListener('touchstart', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('touchmove', drag);
-        document.addEventListener('mouseup', dragEnd);
-        document.addEventListener('touchend', dragEnd);
-    }
-
-    makeResizable(element) {
-        const handles = element.querySelectorAll('.resize-handle');
-        handles.forEach(handle => {
-            let isResizing = false;
-            let originalWidth;
-            let originalHeight;
-            let originalX;
-            let originalY;
-            let startX;
-            let startY;
-
-            const startResize = (e) => {
-                isResizing = true;
-                e.stopPropagation();
-
-                const touch = e.type === 'touchstart' ? e.touches[0] : e;
-                startX = touch.clientX;
-                startY = touch.clientY;
-                originalWidth = element.offsetWidth;
-                originalHeight = element.offsetHeight;
-                originalX = element.offsetLeft;
-                originalY = element.offsetTop;
-
-                document.addEventListener('mousemove', resize);
-                document.addEventListener('touchmove', resize);
-                document.addEventListener('mouseup', stopResize);
-                document.addEventListener('touchend', stopResize);
-            };
-
-            const resize = (e) => {
-                if (!isResizing) return;
-                e.preventDefault();
-
-                const touch = e.type === 'touchmove' ? e.touches[0] : e;
-                const dx = touch.clientX - startX;
-                const dy = touch.clientY - startY;
-
-                if (handle.classList.contains('se')) {
-                    element.style.width = `${originalWidth + dx}px`;
-                    element.style.height = `${originalHeight + dy}px`;
-                } else if (handle.classList.contains('sw')) {
-                    element.style.width = `${originalWidth - dx}px`;
-                    element.style.height = `${originalHeight + dy}px`;
-                    element.style.left = `${originalX + dx}px`;
-                } else if (handle.classList.contains('ne')) {
-                    element.style.width = `${originalWidth + dx}px`;
-                    element.style.height = `${originalHeight - dy}px`;
-                    element.style.top = `${originalY + dy}px`;
-                } else if (handle.classList.contains('nw')) {
-                    element.style.width = `${originalWidth - dx}px`;
-                    element.style.height = `${originalHeight - dy}px`;
-                    element.style.top = `${originalY + dy}px`;
-                    element.style.left = `${originalX + dx}px`;
-                }
-            };
-
-            const stopResize = () => {
-                isResizing = false;
-                document.removeEventListener('mousemove', resize);
-                document.removeEventListener('touchmove', resize);
-                document.removeEventListener('mouseup', stopResize);
-                document.removeEventListener('touchend', stopResize);
                 
-                // به‌روزرسانی سایز در دیتا
-                const elementId = parseInt(element.dataset.id);
-                const slide = this.slides[this.currentSlideIndex];
-                const elementData = slide.elements.find(el => el.id === elementId);
-                if (elementData) {
-                    elementData.style = {
-                        ...elementData.style,
-                        width: element.style.width,
-                        height: element.style.height
-                    };
-                    elementData.position = {
-                        x: parseInt(element.style.left),
-                        y: parseInt(element.style.top)
-                    };
-                    this.saveToCookie();
+                saveState();
+                updateSlidePreview(currentSlideIndex);
+            } catch (error) {
+                console.log('Style application error:', error);
+            }
+        }
+
+        function toggleStyle(style) {
+            const selection = window.getSelection();
+            if (!selection.toString()) return;
+
+            try {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                
+                if (style === 'bold') {
+                    const isBold = window.getComputedStyle(range.commonAncestorContainer.parentNode).fontWeight >= 700;
+                    span.style.fontWeight = isBold ? 'normal' : 'bold';
+                } else if (style === 'italic') {
+                    const isItalic = window.getComputedStyle(range.commonAncestorContainer.parentNode).fontStyle === 'italic';
+                    span.style.fontStyle = isItalic ? 'normal' : 'italic';
                 }
+
+                if (range.commonAncestorContainer.nodeType === 3) {
+                    range.surroundContents(span);
+                } else {
+                    const text = range.extractContents();
+                    span.appendChild(text);
+                    range.insertNode(span);
+                }
+
+                const button = document.querySelector(`[onclick="toggleStyle('${style}')"]`);
+                button.classList.toggle('active');
+                
+                saveState();
+                updateSlidePreview(currentSlideIndex);
+            } catch (error) {
+                console.log('Style toggle error:', error);
+            }
+        }
+
+        function addNewSlide() {
+            const slide = {
+                id: Date.now(),
+                background: '#ffffff',
+                content: ''
             };
+            slides.push(slide);
+            currentSlideIndex = slides.length - 1;
+            updateSlidesList();
+            renderCurrentSlide();
+            saveState();
+        }
 
-            handle.addEventListener('mousedown', startResize);
-            handle.addEventListener('touchstart', startResize);
-        });
-    }
+        function deleteCurrentSlide() {
+            if (slides.length <= 1) {
+                alert('نمی‌توانید تنها اسلاید را حذف کنید');
+                return;
+            }
 
-    camelToKebab(string) {
-        return string.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
-    }
-}
+            if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+                slides.splice(currentSlideIndex, 1);
+                if (currentSlideIndex >= slides.length) {
+                    currentSlideIndex = slides.length - 1;
+                }
+                updateSlidesList();
+                renderCurrentSlide();
+                saveState();
+            }
+        }
 
-// ایجاد نمونه از کلاس
-const presentation = new Presentation();
+        function updateSlidesList() {
+            const container = document.getElementById('slideList');
+            container.innerHTML = '';
+            
+            slides.forEach((slide, index) => {
+                const preview = document.createElement('div');
+                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
+                preview.style.backgroundColor = slide.background;
+                preview.onclick = () => switchSlide(index);
+                
+                // شماره اسلاید
+                const number = document.createElement('div');
+                number.className = 'slide-number';
+                number.textContent = (index + 1).toString();
+                preview.appendChild(number);
+                
+                // دکمه حذف
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (slides.length > 1) {
+                        slides.splice(index, 1);
+                        if (currentSlideIndex >= index) {
+                            currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+                        }
+                        updateSlidesList();
+                        renderCurrentSlide();
+                        saveState();
+                    } else {
+                        alert('نمی‌توانید تنها اسلاید را حذف کنید');
+                    }
+                };
+                
+                preview.appendChild(deleteBtn);
+                container.appendChild(preview);
+            });
+        }
+
+        function switchSlide(index) {
+            currentSlideIndex = index;
+            updateSlidesList();
+            renderCurrentSlide();
+        }
+
+        function renderCurrentSlide() {
+            const canvas = document.getElementById('currentSlide');
+            canvas.innerHTML = '';
+            canvas.style.backgroundColor = slides[currentSlideIndex].background;
+
+            const content = createSlideContent();
+            content.innerHTML = slides[currentSlideIndex].content;
+            canvas.appendChild(content);
+            updateSlidePreview(currentSlideIndex);
+        }
+
+        function updateSlideBackground(color) {
+            slides[currentSlideIndex].background = color;
+            document.getElementById('currentSlide').style.backgroundColor = color;
+            document.getElementById('bgColor').value = color;
+            updateSlidePreview(currentSlideIndex);
+            saveState();
+        }
+
+        function updateSlidePreview(index) {
+            const preview = document.querySelectorAll('.slide-preview')[index];
+            if (preview) {
+                preview.style.backgroundColor = slides[index].background;
+            }
+        }
+
+        async function generatePPT() {
+            try {
+                const pptx = new PptxGenJS();
+                
+                for (const slide of slides) {
+                    const pptSlide = pptx.addSlide();
+                    pptSlide.background = { color: slide.background };
+
+                    if (slide.content.trim()) {
+                        // تبدیل محتوای HTML به متن ساده برای PowerPoint
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = slide.content;
+                        
+                        pptSlide.addText(tempDiv.innerText, {
+                            x: '5%',
+                            y: '5%',
+                            w: '90%',
+                            h: '90%',
+                            fontSize: 24,
+                            fontFace: 'Vazirmatn',
+                            color: '000000',
+                            rtlMode: true
+                        });
+                    }
+                }
+
+                await pptx.writeFile({ fileName: `presentation-${Date.now()}.pptx` });
+                alert('پاورپوینت با موفقیت ساخته شد!');
+
+            } catch (error) {
+                alert(`خطا در ساخت پاورپوینت: ${error.message}`);
+                console.error(error);
+            }
+        }
+
+        function rgbToHex(rgb) {
+            if (rgb.startsWith('#')) return rgb;
+            const values = rgb.match(/\d+/g);
+            return values ? `#${values.map(x => parseInt(x).toString(16).padStart(2, '0')).join('')}` : '#000000';
+        }
+
+        function saveState() {
+            const currentContent = document.querySelector('.slide-content');
+            if (currentContent) {
+                slides[currentSlideIndex].content = currentContent.innerHTML;
+            }
+            
+            localStorage.setItem('slides', JSON.stringify(slides));
+            localStorage.setItem('currentSlideIndex', currentSlideIndex);
+        }
+
+        function loadState() {
+            const savedSlides = localStorage.getItem('slides');
+            const savedIndex = localStorage.getItem('currentSlideIndex');
+            
+            if (savedSlides) {
+                slides = JSON.parse(savedSlides);
+                currentSlideIndex = parseInt(savedIndex) || 0;
+                updateSlidesList();
+                renderCurrentSlide();
+            } else {
+                addNewSlide();
+            }
+        }
+
+        window.addEventListener('load', loadState);
     </script>
 </body>
 </html>
