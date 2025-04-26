@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -34,14 +33,29 @@
             flex-direction: column;
         }
 
-        .top-bar {
-            background: white;
-            padding: 0.75rem 1rem;
+        .main-toolbar {
+            background: #f8f9fa;
+            padding: 0.5rem;
             border-bottom: 1px solid var(--border);
             display: flex;
-            align-items: center;
             gap: 1rem;
-            z-index: 100;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0 0.5rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
         }
 
         .main-content {
@@ -62,13 +76,14 @@
         }
 
         .slide-preview {
-            width: 160px;
+            position: relative;
+            width: 180px;
             aspect-ratio: 16/9;
             margin: 0.5rem 0;
             border: 2px solid var(--border);
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
-            position: relative;
         }
 
         .slide-preview:hover {
@@ -80,7 +95,7 @@
             box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        .delete-slide {
+        .delete-btn {
             position: absolute;
             top: -8px;
             right: -8px;
@@ -90,14 +105,15 @@
             color: white;
             border: none;
             border-radius: 50%;
-            cursor: pointer;
             display: none;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
             font-size: 12px;
+            z-index: 10;
         }
 
-        .slide-preview:hover .delete-slide {
+        .slide-preview:hover .delete-btn {
             display: flex;
         }
 
@@ -123,13 +139,11 @@
         .text-box {
             position: absolute;
             padding: 8px;
-            min-width: 200px;
-            min-height: 40px;
+            min-width: 100px;
+            min-height: 32px;
             outline: none;
-            border: 1px dashed transparent;
+            border: 1px solid transparent;
             cursor: text;
-            user-select: text;
-            background: transparent;
             transition: all 0.2s ease;
             border-radius: 4px;
         }
@@ -141,11 +155,11 @@
         }
 
         .text-box:hover {
-            border-color: rgba(37, 99, 235, 0.3);
+            border: 1px solid var(--primary-light);
         }
 
         .text-box:focus {
-            border-color: var(--primary);
+            border: 1px solid var(--primary);
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
 
@@ -155,24 +169,33 @@
             cursor: move;
         }
 
-        .formatting-toolbar {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            display: none;
-            gap: 0.5rem;
-            z-index: 1000;
-            align-items: center;
+        .style-select {
+            height: 32px;
+            padding: 0 0.5rem;
             border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            min-width: 100px;
         }
 
-        .formatting-toolbar.active {
+        .color-group {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .color-group input[type="color"] {
+            width: 32px;
+            height: 32px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .color-label {
+            font-size: 0.75rem;
+            color: #666;
         }
 
         .btn {
@@ -209,17 +232,23 @@
             border-color: var(--danger);
         }
 
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
         .toolbar-btn {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
-            background: none;
-            border-radius: 4px;
             cursor: pointer;
-            color: #4b5563;
             transition: all 0.2s ease;
         }
 
@@ -230,24 +259,6 @@
         .toolbar-btn.active {
             background: var(--primary-light);
             color: white;
-        }
-
-        select.font-family,
-        input.font-size {
-            height: 36px;
-            padding: 0 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            font-family: inherit;
-        }
-
-        input[type="color"] {
-            width: 36px;
-            height: 36px;
-            padding: 2px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            cursor: pointer;
         }
 
         @media (max-width: 768px) {
@@ -264,28 +275,77 @@
                 z-index: 90;
             }
 
-            .formatting-toolbar {
-                bottom: 30%;
-                top: auto;
-                width: 95%;
+            .main-toolbar {
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+
+            .toolbar-group {
+                border: none;
+                padding: 0.25rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <button class="btn btn-primary" onclick="addNewSlide()">
-            + اسلاید جدید
-        </button>
-        <button class="btn" onclick="addNewTextbox()">
-            + متن
-        </button>
-        <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه">
-        <button class="btn" onclick="generatePPT()">
-            دانلود
-        </button>
+    <div class="main-toolbar">
+        <div class="toolbar-group">
+            <button class="btn btn-primary" onclick="addNewSlide()">
+                <span class="icon">+</span>
+                اسلاید جدید
+            </button>
+            <button class="btn btn-danger" onclick="deleteCurrentSlide()">
+                <span class="icon">×</span>
+                حذف اسلاید
+            </button>
+        </div>
+        
+        <div class="toolbar-group">
+            <select class="style-select font-family" onchange="updateCurrentStyle('fontFamily', this.value)">
+                <option value="Vazirmatn">وزیر</option>
+                <option value="Lalezar">لاله‌زار</option>
+                <option value="Yekan">یکان</option>
+            </select>
+            <select class="style-select font-size" onchange="updateCurrentStyle('fontSize', this.value + 'px')">
+                <option value="16">16</option>
+                <option value="20">20</option>
+                <option value="24">24</option>
+                <option value="32">32</option>
+                <option value="48">48</option>
+            </select>
+            <div class="color-group">
+                <input type="color" id="textColor" onchange="updateCurrentStyle('color', this.value)" title="رنگ متن">
+                <label for="textColor" class="color-label">رنگ متن</label>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="updateCurrentStyle('textAlign', 'right')" title="راست‌چین">
+                <span class="icon">⇚</span>
+            </button>
+            <button class="toolbar-btn" onclick="updateCurrentStyle('textAlign', 'center')" title="وسط‌چین">
+                <span class="icon">☰</span>
+            </button>
+            <button class="toolbar-btn" onclick="updateCurrentStyle('textAlign', 'left')" title="چپ‌چین">
+                <span class="icon">⇛</span>
+            </button>
+            <button class="toolbar-btn" onclick="toggleStyle('bold')" title="ضخیم">B</button>
+            <button class="toolbar-btn" onclick="toggleStyle('italic')" title="مورب">I</button>
+        </div>
+
+        <div class="toolbar-group">
+            <div class="color-group">
+                <input type="color" id="bgColor" onchange="updateSlideBackground(this.value)" title="رنگ پس‌زمینه">
+                <label for="bgColor" class="color-label">پس‌زمینه</label>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="btn btn-success" onclick="generatePPT()">
+                <span class="icon">⬇️</span>
+                دانلود
+            </button>
+        </div>
     </div>
 
     <div class="main-content">
@@ -294,241 +354,173 @@
         </div>
         
         <div class="slide-workspace">
-            <div class="slide-canvas" id="currentSlide">
+            <div class="slide-canvas" id="currentSlide" onclick="handleCanvasClick(event)">
                 <!-- محتوای اسلاید فعلی -->
             </div>
         </div>
     </div>
 
-    <div class="formatting-toolbar" id="formattingToolbar">
-        <select class="font-family" onchange="updateTextStyle('fontFamily', this.value)">
-            <option value="Vazirmatn">وزیر</option>
-            <option value="Lalezar">لاله‌زار</option>
-            <option value="Yekan">یکان</option>
-        </select>
-        <input type="number" class="font-size" value="24" min="8" max="72" onchange="updateTextStyle('fontSize', this.value + 'px')">
-        <input type="color" value="#000000" onchange="updateTextStyle('color', this.value)">
-        <button class="toolbar-btn" onclick="alignText('right')">⇚</button>
-        <button class="toolbar-btn" onclick="alignText('center')">☰</button>
-        <button class="toolbar-btn" onclick="alignText('left')">⇛</button>
-        <button class="toolbar-btn" onclick="formatText('bold')">B</button>
-        <button class="toolbar-btn" onclick="formatText('italic')">I</button>
-        <button class="toolbar-btn" onclick="deleteSelectedText()">🗑️</button>
-    </div>
 
-        <script>
-        let slides = [];
-        let currentSlideIndex = 0;
-        let selectedElement = null;
-        let isDragging = false;
-        let startX, startY, initialX, initialY;
+    <script>
+    let slides = [];
+    let currentSlideIndex = 0;
+    let selectedElement = null;
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
 
-        function calculateNewTextPosition() {
-            const existingElements = slides[currentSlideIndex].elements;
-            let nextY = 5;
-            
-            const sortedElements = existingElements
-                .filter(el => el.type === 'text')
-                .sort((a, b) => a.y - b.y);
-            
-            for (const element of sortedElements) {
-                if (element.y > nextY + 8) {
-                    break;
-                }
-                nextY = element.y + 8;
-            }
-            
-            nextY = Math.min(nextY, 85);
-            
-            return {
-                x: 5,
-                y: nextY
-            };
+    // تنظیمات فعلی متن
+    let currentTextStyle = {
+        fontFamily: 'Vazirmatn',
+        fontSize: '24px',
+        color: '#000000',
+        textAlign: 'right',
+        fontWeight: 'normal',
+        fontStyle: 'normal'
+    };
+
+    function handleCanvasClick(e) {
+        if (e.target.id === 'currentSlide') {
+            const rect = e.target.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            addNewTextbox(x, y);
         }
+    }
 
-        function addNewSlide() {
-            const slide = {
-                id: Date.now(),
-                background: '#ffffff',
-                elements: []
-            };
-            slides.push(slide);
-            currentSlideIndex = slides.length - 1;
-            updateSlidesList();
-            renderCurrentSlide();
+    function addNewTextbox(x = 50, y = 50) {
+        const element = {
+            type: 'text',
+            id: Date.now(),
+            content: '',
+            x: Math.max(0, Math.min(90, x)),
+            y: Math.max(0, Math.min(90, y)),
+            style: { ...currentTextStyle }
+        };
+
+        slides[currentSlideIndex].elements.push(element);
+        const textbox = addTextboxToCanvas(element);
+        textbox.focus();
+        saveState();
+    }
+
+    function addTextboxToCanvas(element) {
+        const textbox = document.createElement('div');
+        textbox.className = 'text-box';
+        textbox.contentEditable = true;
+        textbox.dataset.id = element.id;
+        textbox.innerHTML = element.content;
+        textbox.style.left = `${element.x}%`;
+        textbox.style.top = `${element.y}%`;
+        textbox.setAttribute('placeholder', 'برای نوشتن کلیک کنید...');
+        
+        Object.assign(textbox.style, element.style);
+        
+        textbox.addEventListener('mousedown', (e) => {
+            if (e.detail === 2) {
+                startEditing(textbox);
+            } else {
+                startDragging(e);
+            }
+        });
+        
+        textbox.addEventListener('input', debounce(handleInput, 300));
+        textbox.addEventListener('blur', handleBlur);
+        
+        document.getElementById('currentSlide').appendChild(textbox);
+        return textbox;
+    }
+
+    function startEditing(textbox) {
+        textbox.focus();
+        selectedElement = textbox;
+        const range = document.createRange();
+        range.selectNodeContents(textbox);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        
+        updateToolbarWithCurrentStyles(textbox);
+    }
+
+    function updateToolbarWithCurrentStyles(textbox) {
+        const style = window.getComputedStyle(textbox);
+        document.querySelector('.font-family').value = style.fontFamily.split(',')[0].replace(/['"]+/g, '');
+        document.querySelector('.font-size').value = parseInt(style.fontSize);
+        document.querySelector('#textColor').value = rgbToHex(style.color);
+        
+        document.querySelector('[onclick="toggleStyle(\'bold\')"]').classList.toggle('active', 
+            style.fontWeight === 'bold' || parseInt(style.fontWeight) >= 700);
+        document.querySelector('[onclick="toggleStyle(\'italic\')"]').classList.toggle('active', 
+            style.fontStyle === 'italic');
+    }
+
+    function handleInput(e) {
+        const elementId = parseInt(e.target.dataset.id);
+        const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
+        if (element) {
+            element.content = e.target.innerHTML;
             saveState();
         }
+    }
 
-        function deleteSlide(index) {
-            if (slides.length <= 1) {
-                alert('نمی‌توانید تنها اسلاید را حذف کنید');
-                return;
-            }
-
-            if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
-                slides.splice(index, 1);
-                if (currentSlideIndex >= slides.length) {
-                    currentSlideIndex = slides.length - 1;
-                }
-                updateSlidesList();
-                renderCurrentSlide();
-                saveState();
-            }
-        }
-
-        function updateSlidesList() {
-            const container = document.getElementById('slideList');
-            container.innerHTML = '';
-            
-            slides.forEach((slide, index) => {
-                const preview = document.createElement('div');
-                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
-                preview.style.backgroundColor = slide.background;
-                preview.onclick = () => switchSlide(index);
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-slide';
-                deleteBtn.innerHTML = '×';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteSlide(index);
-                };
-                
-                preview.appendChild(deleteBtn);
-                container.appendChild(preview);
-            });
-        }
-
-        function switchSlide(index) {
-            currentSlideIndex = index;
-            updateSlidesList();
-            renderCurrentSlide();
-        }
-
-        function renderCurrentSlide() {
-            const canvas = document.getElementById('currentSlide');
-            canvas.innerHTML = '';
-            canvas.style.backgroundColor = slides[currentSlideIndex].background;
-
-            slides[currentSlideIndex].elements.forEach(element => {
-                if (element.type === 'text') {
-                    addTextboxToCanvas(element);
-                }
-            });
-        }
-
-        function addNewTextbox() {
-            const position = calculateNewTextPosition();
-            const element = {
-                type: 'text',
-                id: Date.now(),
-                content: '',
-                x: position.x,
-                y: position.y,
-                style: {
-                    fontFamily: 'Vazirmatn',
-                    fontSize: '24px',
-                    color: '#000000',
-                    textAlign: 'right',
-                    fontWeight: 'normal',
-                    fontStyle: 'normal',
-                    width: '90%'
-                }
-            };
-
-            slides[currentSlideIndex].elements.push(element);
-            addTextboxToCanvas(element);
-            const textbox = document.querySelector(`[data-id="${element.id}"]`);
-            if (textbox) {
-                textbox.focus();
-            }
-            saveState();
-        }
-
-                function addTextboxToCanvas(element) {
-            const textbox = document.createElement('div');
-            textbox.className = 'text-box';
-            textbox.contentEditable = true;
-            textbox.dataset.id = element.id;
-            textbox.innerHTML = element.content;
-            textbox.style.left = `${element.x}%`;
-            textbox.style.top = `${element.y}%`;
-            textbox.style.width = element.style.width;
-            textbox.setAttribute('placeholder', 'برای نوشتن کلیک کنید...');
-            
-            Object.assign(textbox.style, element.style);
-            
-            textbox.addEventListener('focus', showFormattingToolbar);
-            textbox.addEventListener('blur', handleBlur);
-            textbox.addEventListener('input', handleInput);
-            textbox.addEventListener('mousedown', startDragging);
-            textbox.addEventListener('touchstart', startDragging, { passive: false });
-            
-            document.getElementById('currentSlide').appendChild(textbox);
-        }
-
-        function handleInput(e) {
+    function handleBlur(e) {
+        if (!e.target.textContent.trim()) {
             const elementId = parseInt(e.target.dataset.id);
-            const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
-            if (element) {
-                element.content = e.target.innerHTML;
-                saveState();
-            }
+            slides[currentSlideIndex].elements = slides[currentSlideIndex].elements.filter(
+                el => el.id !== elementId
+            );
+            e.target.remove();
+            saveState();
         }
+    }
 
-        function handleBlur(e) {
-            if (!e.relatedTarget || !e.relatedTarget.closest('#formattingToolbar')) {
-                hideFormattingToolbar();
-            }
-            
-            if (!e.target.textContent.trim()) {
-                const elementId = parseInt(e.target.dataset.id);
-                slides[currentSlideIndex].elements = slides[currentSlideIndex].elements.filter(
-                    el => el.id !== elementId
-                );
-                e.target.remove();
-                saveState();
-            }
-        }
-
-        function showFormattingToolbar(e) {
-            const toolbar = document.getElementById('formattingToolbar');
-            toolbar.classList.add('active');
-            selectedElement = e.target;
-            
+    function updateCurrentStyle(property, value) {
+        currentTextStyle[property] = value;
+        
+        if (selectedElement) {
+            selectedElement.style[property] = value;
             const elementId = parseInt(selectedElement.dataset.id);
             const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
             if (element) {
-                document.querySelector('.font-family').value = element.style.fontFamily;
-                document.querySelector('.font-size').value = parseInt(element.style.fontSize);
-                document.querySelector('.formatting-toolbar input[type="color"]').value = element.style.color;
-            }
-
-            if (window.innerWidth <= 768) {
-                toolbar.style.bottom = '30%';
-                toolbar.style.top = 'auto';
-            } else {
-                const rect = selectedElement.getBoundingClientRect();
-                toolbar.style.top = `${rect.top - toolbar.offsetHeight - 10}px`;
+                element.style[property] = value;
+                saveState();
             }
         }
+        
+        localStorage.setItem('currentTextStyle', JSON.stringify(currentTextStyle));
+    }
 
-        function hideFormattingToolbar() {
-            document.getElementById('formattingToolbar').classList.remove('active');
+    function toggleStyle(style) {
+        if (!selectedElement) return;
+        
+        if (style === 'bold') {
+            const isBold = selectedElement.style.fontWeight === 'bold';
+            selectedElement.style.fontWeight = isBold ? 'normal' : 'bold';
+            currentTextStyle.fontWeight = isBold ? 'normal' : 'bold';
+        } else if (style === 'italic') {
+            const isItalic = selectedElement.style.fontStyle === 'italic';
+            selectedElement.style.fontStyle = isItalic ? 'normal' : 'italic';
+            currentTextStyle.fontStyle = isItalic ? 'normal' : 'italic';
         }
 
-        function startDragging(e) {
-            if (e.type === 'touchstart') {
-                e.preventDefault();
-            }
+        const elementId = parseInt(selectedElement.dataset.id);
+        const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
+        if (element) {
+            element.style = { ...currentTextStyle };
+            saveState();
+        }
 
-            if (e.target.classList.contains('text-box')) {
-                selectedElement = e.target;
+        document.querySelector(`[onclick="toggleStyle('${style}')"]`).classList.toggle('active');
+    }
+
+    function startDragging(e) {
+        if (e.target.classList.contains('text-box')) {
+            selectedElement = e.target;
+            
+            if (window.getSelection().toString() === '') {
                 isDragging = true;
-                
-                const point = e.type === 'mousedown' ? e : e.touches[0];
-                startX = point.clientX;
-                startY = point.clientY;
+                startX = e.clientX;
+                startY = e.clientY;
                 
                 const rect = selectedElement.getBoundingClientRect();
                 const canvasRect = document.getElementById('currentSlide').getBoundingClientRect();
@@ -538,194 +530,236 @@
 
                 selectedElement.classList.add('dragging');
                 
-                if (e.type === 'mousedown') {
-                    document.addEventListener('mousemove', drag);
-                    document.addEventListener('mouseup', stopDragging);
-                } else {
-                    document.addEventListener('touchmove', drag, { passive: false });
-                    document.addEventListener('touchend', stopDragging);
-                }
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDragging);
             }
         }
+    }
 
-        function drag(e) {
-            if (!isDragging) return;
+    function drag(e) {
+        if (!isDragging) return;
+        
+        e.preventDefault();
+        const canvasRect = document.getElementById('currentSlide').getBoundingClientRect();
+        const dx = ((e.clientX - startX) / canvasRect.width) * 100;
+        const dy = ((e.clientY - startY) / canvasRect.height) * 100;
+
+        const newX = Math.max(0, Math.min(95, initialX + dx));
+        const newY = Math.max(0, Math.min(90, initialY + dy));
+
+        selectedElement.style.left = `${newX}%`;
+        selectedElement.style.top = `${newY}%`;
+
+        const elementId = parseInt(selectedElement.dataset.id);
+        const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
+        if (element) {
+            element.x = newX;
+            element.y = newY;
+        }
+    }
+
+    function stopDragging() {
+        if (isDragging) {
+            selectedElement.classList.remove('dragging');
+            isDragging = false;
             
-            e.preventDefault();
-            const point = e.type === 'mousemove' ? e : e.touches[0];
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDragging);
             
-            const canvasRect = document.getElementById('currentSlide').getBoundingClientRect();
-            const dx = ((point.clientX - startX) / canvasRect.width) * 100;
-            const dy = ((point.clientY - startY) / canvasRect.height) * 100;
-
-            const newX = Math.max(0, Math.min(95, initialX + dx));
-            const newY = Math.max(0, Math.min(90, initialY + dy));
-
-            selectedElement.style.left = `${newX}%`;
-            selectedElement.style.top = `${newY}%`;
-
-            const elementId = parseInt(selectedElement.dataset.id);
-            const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
-            if (element) {
-                element.x = newX;
-                element.y = newY;
-            }
-        }
-
-        function stopDragging() {
-            if (isDragging) {
-                selectedElement.classList.remove('dragging');
-                isDragging = false;
-                
-                document.removeEventListener('mousemove', drag);
-                document.removeEventListener('mouseup', stopDragging);
-                document.removeEventListener('touchmove', drag);
-                document.removeEventListener('touchend', stopDragging);
-                
-                saveState();
-            }
-        }
-
-        function updateTextStyle(property, value) {
-            if (selectedElement) {
-                selectedElement.style[property] = value;
-                const elementId = parseInt(selectedElement.dataset.id);
-                const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
-                if (element) {
-                    element.style[property] = value;
-                    saveState();
-                }
-            }
-        }
-
-        function alignText(alignment) {
-            if (selectedElement) {
-                selectedElement.style.textAlign = alignment;
-                const elementId = parseInt(selectedElement.dataset.id);
-                const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
-                if (element) {
-                    element.style.textAlign = alignment;
-                    saveState();
-                }
-            }
-        }
-
-        function formatText(format) {
-            if (selectedElement) {
-                if (format === 'bold') {
-                    selectedElement.style.fontWeight = selectedElement.style.fontWeight === 'bold' ? 'normal' : 'bold';
-                } else if (format === 'italic') {
-                    selectedElement.style.fontStyle = selectedElement.style.fontStyle === 'italic' ? 'normal' : 'italic';
-                }
-                
-                const elementId = parseInt(selectedElement.dataset.id);
-                const element = slides[currentSlideIndex].elements.find(el => el.id === elementId);
-                if (element) {
-                    element.style.fontWeight = selectedElement.style.fontWeight;
-                    element.style.fontStyle = selectedElement.style.fontStyle;
-                    saveState();
-                }
-            }
-        }
-
-        function deleteSelectedText() {
-            if (selectedElement) {
-                const elementId = parseInt(selectedElement.dataset.id);
-                slides[currentSlideIndex].elements = slides[currentSlideIndex].elements.filter(
-                    el => el.id !== elementId
-                );
-                selectedElement.remove();
-                hideFormattingToolbar();
-                saveState();
-            }
-        }
-
-        function updateSlideBackground(color) {
-            slides[currentSlideIndex].background = color;
-            document.getElementById('currentSlide').style.backgroundColor = color;
-            updateSlidesList();
             saveState();
         }
+    }
 
-        function saveState() {
-            localStorage.setItem('slides', JSON.stringify(slides));
-            localStorage.setItem('currentSlideIndex', currentSlideIndex);
+    function addNewSlide() {
+        const slide = {
+            id: Date.now(),
+            background: '#ffffff',
+            elements: []
+        };
+        slides.push(slide);
+        currentSlideIndex = slides.length - 1;
+        updateSlidesList();
+        renderCurrentSlide();
+        saveState();
+    }
+
+    function deleteCurrentSlide() {
+        if (slides.length <= 1) {
+            alert('نمی‌توانید تنها اسلاید را حذف کنید');
+            return;
         }
 
-        function loadState() {
-            const savedSlides = localStorage.getItem('slides');
-            const savedIndex = localStorage.getItem('currentSlideIndex');
+        if (confirm('آیا از حذف این اسلاید مطمئن هستید؟')) {
+            slides.splice(currentSlideIndex, 1);
+            if (currentSlideIndex >= slides.length) {
+                currentSlideIndex = slides.length - 1;
+            }
+            updateSlidesList();
+            renderCurrentSlide();
+            saveState();
+        }
+    }
+
+    function updateSlidesList() {
+        const container = document.getElementById('slideList');
+        container.innerHTML = '';
+        
+        slides.forEach((slide, index) => {
+            const preview = document.createElement('div');
+            preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
+            preview.style.backgroundColor = slide.background;
+            preview.onclick = () => switchSlide(index);
             
-            if (savedSlides) {
-                slides = JSON.parse(savedSlides);
-                currentSlideIndex = parseInt(savedIndex) || 0;
-                updateSlidesList();
-                renderCurrentSlide();
-            } else {
-                addNewSlide();
-            }
-        }
-
-        async function generatePPT() {
-            try {
-                const pptx = new PptxGenJS();
-                
-                for (const slide of slides) {
-                    const pptSlide = pptx.addSlide();
-                    pptSlide.background = { color: slide.background };
-
-                    for (const element of slide.elements) {
-                        if (element.type === 'text') {
-                            pptSlide.addText(element.content, {
-                                x: `${element.x}%`,
-                                y: `${element.y}%`,
-                                w: '50%',
-                                fontFace: element.style.fontFamily,
-                                fontSize: parseInt(element.style.fontSize),
-                                color: element.style.color,
-                                align: element.style.textAlign,
-                                bold: element.style.fontWeight === 'bold',
-                                italic: element.style.fontStyle === 'italic',
-                                rtlMode: true
-                            });
-                        }
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (slides.length > 1) {
+                    slides.splice(index, 1);
+                    if (currentSlideIndex >= index) {
+                        currentSlideIndex = Math.max(0, currentSlideIndex - 1);
                     }
+                    updateSlidesList();
+                    renderCurrentSlide();
+                    saveState();
+                } else {
+                    alert('نمی‌توانید تنها اسلاید را حذف کنید');
                 }
+            };
+            
+            preview.appendChild(deleteBtn);
+            container.appendChild(preview);
+        });
+    }
 
-                await pptx.writeFile({ fileName: `presentation-${Date.now()}.pptx` });
-                alert('پاورپوینت با موفقیت ساخته شد!');
+    function switchSlide(index) {
+        currentSlideIndex = index;
+        updateSlidesList();
+        renderCurrentSlide();
+    }
 
-            } catch (error) {
-                alert(`خطا در ساخت پاورپوینت: ${error.message}`);
-                console.error(error);
-            }
-        }
+    function renderCurrentSlide() {
+        const canvas = document.getElementById('currentSlide');
+        canvas.innerHTML = '';
+        canvas.style.backgroundColor = slides[currentSlideIndex].background;
 
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key.toLowerCase()) {
-                    case 's':
-                        e.preventDefault();
-                        saveState();
-                        break;
-                    case 'b':
-                        e.preventDefault();
-                        formatText('bold');
-                        break;
-                    case 'i':
-                        e.preventDefault();
-                        formatText('italic');
-                        break;
-                }
-            } else if (e.key === 'Delete' && selectedElement) {
-                deleteSelectedText();
+        slides[currentSlideIndex].elements.forEach(element => {
+            if (element.type === 'text') {
+                addTextboxToCanvas(element);
             }
         });
+    }
 
-        window.addEventListener('load', loadState);
+    function updateSlideBackground(color) {
+        slides[currentSlideIndex].background = color;
+        document.getElementById('currentSlide').style.backgroundColor = color;
+        document.getElementById('bgColor').value = color;
+        updateSlidesList();
+        saveState();
+    }
+
+    async function generatePPT() {
+        try {
+            const pptx = new PptxGenJS();
+            
+            for (const slide of slides) {
+                const pptSlide = pptx.addSlide();
+                pptSlide.background = { color: slide.background };
+
+                for (const element of slide.elements) {
+                    if (element.type === 'text' && element.content.trim()) {
+                        pptSlide.addText(element.content, {
+                            x: `${element.x}%`,
+                            y: `${element.y}%`,
+                            w: '50%',
+                            fontFace: element.style.fontFamily,
+                            fontSize: parseInt(element.style.fontSize),
+                            color: element.style.color,
+                            align: element.style.textAlign,
+                            bold: element.style.fontWeight === 'bold',
+                            italic: element.style.fontStyle === 'italic',
+                            rtlMode: true
+                        });
+                    }
+                }
+            }
+
+            await pptx.writeFile({ fileName: `presentation-${Date.now()}.pptx` });
+            alert('پاورپوینت با موفقیت ساخته شد!');
+
+        } catch (error) {
+            alert(`خطا در ساخت پاورپوینت: ${error.message}`);
+            console.error(error);
+        }
+    }
+
+    // Utility Functions
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function rgbToHex(rgb) {
+        if (rgb.startsWith('#')) return rgb;
+        const values = rgb.match(/\d+/g);
+        return `#${values.map(x => parseInt(x).toString(16).padStart(2, '0')).join('')}`;
+    }
+
+    function saveState() {
+        localStorage.setItem('slides', JSON.stringify(slides));
+        localStorage.setItem('currentSlideIndex', currentSlideIndex);
+    }
+
+    function loadState() {
+        const savedSlides = localStorage.getItem('slides');
+        const savedIndex = localStorage.getItem('currentSlideIndex');
+        const savedStyle = localStorage.getItem('currentTextStyle');
         
-    </script>
+        if (savedStyle) {
+            currentTextStyle = JSON.parse(savedStyle);
+        }
+        
+        if (savedSlides) {
+            slides = JSON.parse(savedSlides);
+            currentSlideIndex = parseInt(savedIndex) || 0;
+            updateSlidesList();
+            renderCurrentSlide();
+        } else {
+            addNewSlide();
+        }
+    }
+
+    // کلیدهای میانبر
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key.toLowerCase()) {
+                case 's':
+                    e.preventDefault();
+                    saveState();
+                    break;
+                case 'b':
+                    e.preventDefault();
+                    toggleStyle('bold');
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    toggleStyle('italic');
+                    break;
+            }
+        } else if (e.key === 'Delete' && selectedElement) {
+            deleteSelectedText();
+        }
+    });
+
+    window.addEventListener('load', loadState);
+</script>
 </body>
 </html>
-
-    
