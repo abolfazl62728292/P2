@@ -314,6 +314,7 @@
                 <option value="Yekan">یکان</option>
             </select>
             <select class="style-select font-size" onchange="applyStyleToSelection('fontSize', this.value + 'px')">
+                <option value="12">12</option>
                 <option value="16">16</option>
                 <option value="20">20</option>
                 <option value="24">24</option>
@@ -357,12 +358,12 @@
 
     <div class="main-content">
         <div class="slide-list" id="slideList">
-            <!-- پیش‌نمایش اسلایدها -->
+            
         </div>
         
         <div class="slide-workspace">
             <div class="slide-canvas" id="currentSlide">
-                <!-- محتوای اسلاید فعلی -->
+                
             </div>
         </div>
     </div>
@@ -402,7 +403,7 @@
                     container.nodeType === 3 ? container.parentNode : container
                 );
 
-                // به‌روزرسانی وضعیت نوار ابزار
+                
                 document.querySelector('.font-family').value = 
                     computedStyle.fontFamily.split(',')[0].replace(/['"]+/g, '') || 'Vazirmatn';
                 document.querySelector('.font-size').value = 
@@ -410,7 +411,7 @@
                 document.querySelector('#textColor').value = 
                     rgbToHex(computedStyle.color);
 
-                // به‌روزرسانی دکمه‌های فرمت
+                
                 document.querySelector('[onclick="toggleStyle(\'bold\')"]')
                     .classList.toggle('active', computedStyle.fontWeight >= 700);
                 document.querySelector('[onclick="toggleStyle(\'italic\')"]')
@@ -518,13 +519,13 @@
                 preview.style.backgroundColor = slide.background;
                 preview.onclick = () => switchSlide(index);
                 
-                // شماره اسلاید
+                
                 const number = document.createElement('div');
                 number.className = 'slide-number';
                 number.textContent = (index + 1).toString();
                 preview.appendChild(number);
                 
-                // دکمه حذف
+                
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
                 deleteBtn.innerHTML = '×';
@@ -645,7 +646,7 @@
             }
         }
 
-        // کلیدهای میانبر
+        
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key.toLowerCase()) {
@@ -665,7 +666,7 @@
             }
         });
 
-        // شروع برنامه
+        
         window.addEventListener('load', loadState);
     </script>
 </body>
