@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -42,28 +41,30 @@
             display: grid;
             grid-template-columns: 1fr 250px;
             gap: 1rem;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 80px);
             margin-top: 1rem;
+            direction: ltr;
         }
 
         .main-toolbar {
             background: white;
-            padding: 0.5rem;
+            padding: 0.75rem;
             border-radius: 8px;
             box-shadow: var(--shadow-sm);
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             position: fixed;
             top: var(--padding-page);
-            right: calc(250px + 2rem);
+            right: calc(270px);
             left: var(--padding-page);
             z-index: 100;
+            direction: rtl;
         }
 
         .toolbar-group {
             display: flex;
-            gap: 0.25rem;
-            padding: 0.25rem;
+            gap: 0.5rem;
+            padding: 0.5rem;
             border-right: 1px solid var(--border);
         }
 
@@ -82,6 +83,7 @@
             top: var(--padding-page);
             width: 250px;
             box-shadow: var(--shadow-md);
+            direction: rtl;
         }
 
         .slide-preview {
@@ -112,6 +114,7 @@
             margin-top: 3.5rem;
             height: calc(100vh - 5.5rem);
             overflow-y: auto;
+            direction: rtl;
         }
 
         .slide-canvas {
@@ -124,7 +127,7 @@
             height: auto;
             min-height: 80vh;
             position: relative;
-            overflow-y: auto;
+            padding: 2rem;
         }
 
         .text-box {
@@ -132,6 +135,7 @@
             padding: 0.75rem;
             border-radius: 4px;
             background: white;
+            border: 1px solid transparent;
             box-shadow: var(--shadow-sm);
             transition: all 0.2s ease;
             min-height: 40px;
@@ -144,7 +148,14 @@
 
         .text-box:focus {
             outline: none;
+            border-color: var(--primary);
             box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .text-box-wrapper {
+            position: relative;
+            margin: 0.5rem;
+            width: calc(100% - 1rem);
         }
 
         .text-box-controls {
@@ -153,22 +164,24 @@
             right: 0;
             display: none;
             background: white;
-            padding: 0.25rem;
+            padding: 0.5rem;
             border-radius: 4px;
             box-shadow: var(--shadow-md);
             z-index: 100;
             gap: 4px;
             align-items: center;
+            direction: rtl;
         }
 
+        .text-box:focus + .text-box-controls,
         .text-box-wrapper:hover .text-box-controls {
             display: flex;
         }
 
         .btn {
-            padding: 0.35rem 0.75rem;
+            padding: 0.5rem 1rem;
             font-size: 0.9rem;
-            height: 32px;
+            height: 36px;
             border: 1px solid var(--border);
             border-radius: 4px;
             background: white;
@@ -257,7 +270,7 @@
         .add-text-box {
             position: fixed;
             bottom: 20px;
-            right: calc(250px + 2rem);
+            left: 20px;
             background: var(--primary);
             color: white;
             border: none;
@@ -276,6 +289,17 @@
         .add-text-box:hover {
             transform: scale(1.1);
             background: var(--primary-light);
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
         }
 
         @keyframes slideIn {
@@ -312,59 +336,28 @@
             background: #a1a1a1;
         }
 
-        @media (orientation: landscape) and (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr 200px;
-            }
-
-            .slide-list {
-                width: 200px;
-            }
-
-            .slide-preview {
-                width: 140px;
-            }
-
-            .main-toolbar {
-                right: calc(200px + 2rem);
-            }
-
-            .btn {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.85rem;
-                height: 28px;
-            }
-
-            .add-text-box {
-                right: calc(200px + 2rem);
-            }
-        }
-
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
 
             .slide-list {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 30%;
                 width: 100%;
-                height: 120px;
-                display: flex;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding: 0.5rem;
-            }
-
-            .slide-preview {
-                flex: 0 0 140px;
-                margin: 0 0.25rem;
+                top: auto;
             }
 
             .main-toolbar {
                 right: var(--padding-page);
+                left: var(--padding-page);
             }
 
             .add-text-box {
-                right: var(--padding-page);
+                bottom: 35%;
             }
         }
     </style>
@@ -457,14 +450,14 @@
                 <input type="color" title="رنگ متن" onchange="changeTextColor(this)" value="#000000">
                 <button class="toolbar-btn" onclick="toggleTextBold(this)" title="ضخیم">B</button>
                 <button class="toolbar-btn" onclick="toggleTextItalic(this)" title="مورب">I</button>
-                <button class="toolbar-btn" onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
+                <button class="toolbar-btn active" onclick="alignText(this, 'right')" title="راست‌چین">⇚</button>
                 <button class="toolbar-btn" onclick="alignText(this, 'center')" title="وسط‌چین">☰</button>
                 <button class="toolbar-btn" onclick="alignText(this, 'left')" title="چپ‌چین">⇛</button>
                 <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
             `;
             
-            wrapper.appendChild(controls);
             wrapper.appendChild(textBox);
+            wrapper.appendChild(controls);
             slideContent.appendChild(wrapper);
             
             enableDragAndDrop(wrapper);
@@ -581,6 +574,8 @@
 
         function saveState() {
             const currentSlide = slides[currentSlideIndex];
+            if (!currentSlide) return;
+
             const textBoxes = document.querySelectorAll('.text-box-wrapper');
             
             currentSlide.textBoxes = Array.from(textBoxes).map(wrapper => {
@@ -607,6 +602,8 @@
             const content = document.getElementById('slideContent');
             content.innerHTML = '';
             
+            if (!slides[currentSlideIndex]) return;
+            
             canvas.style.backgroundColor = slides[currentSlideIndex].background || '#ffffff';
             document.getElementById('bgColor').value = slides[currentSlideIndex].background || '#ffffff';
             
@@ -619,12 +616,16 @@
                     textBox.className = 'text-box';
                     textBox.contentEditable = true;
                     textBox.innerHTML = textBoxData.content;
-                    textBox.style.fontFamily = textBoxData.style.fontFamily;
-                    textBox.style.fontSize = textBoxData.style.fontSize + 'px';
-                    textBox.style.color = textBoxData.style.color;
-                    textBox.style.fontWeight = textBoxData.style.bold ? 'bold' : 'normal';
-                    textBox.style.fontStyle = textBoxData.style.italic ? 'italic' : 'normal';
-                    textBox.style.textAlign = textBoxData.style.align;
+                    textBox.dir = 'rtl';
+                    
+                    Object.assign(textBox.style, {
+                        fontFamily: textBoxData.style.fontFamily,
+                        fontSize: textBoxData.style.fontSize + 'px',
+                        color: textBoxData.style.color,
+                        fontWeight: textBoxData.style.bold ? 'bold' : 'normal',
+                        fontStyle: textBoxData.style.italic ? 'italic' : 'normal',
+                        textAlign: textBoxData.style.align
+                    });
                     
                     Object.assign(textBox.dataset, {
                         fontFamily: textBoxData.style.fontFamily,
@@ -662,8 +663,8 @@
                         <button onclick="deleteTextBox(this)" class="toolbar-btn" title="حذف باکس">×</button>
                     `;
                     
-                    wrapper.appendChild(controls);
                     wrapper.appendChild(textBox);
+                    wrapper.appendChild(controls);
                     content.appendChild(wrapper);
                     
                     enableDragAndDrop(wrapper);
@@ -709,7 +710,7 @@
             
             slides.forEach((slide, index) => {
                 const preview = document.createElement('div');
-                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
+                                preview.className = `slide-preview ${index === currentSlideIndex ? 'active' : ''}`;
                 preview.style.backgroundColor = slide.background || '#ffffff';
                 preview.onclick = () => switchSlide(index);
                 
@@ -742,12 +743,16 @@
         }
 
         function switchSlide(index) {
-            currentSlideIndex = index;
-            updateSlidesList();
-            renderCurrentSlide();
+            if (currentSlideIndex !== index) {
+                currentSlideIndex = index;
+                updateSlidesList();
+                renderCurrentSlide();
+            }
         }
 
         function updateSlideBackground(color) {
+            if (!slides[currentSlideIndex]) return;
+            
             slides[currentSlideIndex].background = color;
             document.getElementById('currentSlide').style.backgroundColor = color;
             document.getElementById('bgColor').value = color;
@@ -756,8 +761,9 @@
         }
 
         function updateSlidePreview(index) {
-            const preview = document.querySelectorAll('.slide-preview')[index];
-            if (preview) {
+            const previews = document.querySelectorAll('.slide-preview');
+            const preview = previews[index];
+            if (preview && slides[index]) {
                 preview.style.backgroundColor = slides[index].background || '#ffffff';
             }
         }
@@ -825,6 +831,8 @@
             const isMobileLandscape = window.matchMedia("(orientation: landscape) and (max-width: 1024px)").matches;
             if (isMobileLandscape) {
                 document.documentElement.style.setProperty('--padding-page', '0.75rem');
+            } else {
+                document.documentElement.style.setProperty('--padding-page', '1rem');
             }
         }
 
@@ -837,17 +845,37 @@
             const savedIndex = localStorage.getItem('currentSlideIndex');
             
             if (savedSlides) {
-                slides = JSON.parse(savedSlides);
-                currentSlideIndex = parseInt(savedIndex) || 0;
-                updateSlidesList();
-                renderCurrentSlide();
+                try {
+                    slides = JSON.parse(savedSlides);
+                    currentSlideIndex = parseInt(savedIndex) || 0;
+                    updateSlidesList();
+                    renderCurrentSlide();
+                } catch (error) {
+                    console.error('Error loading saved state:', error);
+                    slides = [];
+                    currentSlideIndex = 0;
+                    addNewSlide();
+                }
             } else {
                 addNewSlide();
             }
+            
+            optimizeMobileLayout();
         }
+
+        // اضافه کردن event listener برای کلیک خارج از text-box-controls
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.text-box-wrapper')) {
+                const allControls = document.querySelectorAll('.text-box-controls');
+                allControls.forEach(control => {
+                    control.style.display = 'none';
+                });
+            }
+        });
 
         window.addEventListener('load', loadState);
     </script>
 </body>
 </html>
+    
     
